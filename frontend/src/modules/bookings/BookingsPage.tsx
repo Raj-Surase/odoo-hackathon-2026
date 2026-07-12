@@ -94,6 +94,8 @@ export default function BookingsPage() {
   // Real-time conflict checks (Modal warning alerts)
   const [formConflictWarning, setFormConflictWarning] = useState<string | null>(null);
   const [formHoldWarning, setFormHoldWarning] = useState<string | null>(null);
+  const [holdSecondsLeft, setHoldSecondsLeft] = useState<number>(60);
+  const [tick, setTick] = useState(0);
 
   // WebSocket reference
   const ws = useRef<WebSocket | null>(null);
@@ -103,7 +105,7 @@ export default function BookingsPage() {
   // Fetch all bookable assets
   const fetchAssets = async () => {
     try {
-      const response = await api.get('/assets');
+      const response = await api.get('/assets?is_bookable=1');
       const filtered = response.data.filter((asset: Asset) => asset.is_bookable);
       setBookableAssets(filtered);
       if (filtered.length > 0 && !selectedAssetId) {
@@ -116,57 +118,79 @@ export default function BookingsPage() {
   };
 
   // Fetch bookings for the selected asset
-  const fetchBookings = async () => {
+  const fetchBookings = async (isBackground = false) => {
     if (!selectedAssetId) return;
-    setIsLoading(true);
+    if (!isBackground) {
+      setIsLoading(true);
+    }
     setErrorMessage(null);
     try {
       const response = await api.get(`/bookings?resource_id=${selectedAssetId}`);
       setBookings(response.data);
     } catch (err) {
       console.error('Error fetching bookings:', err);
-      setErrorMessage('Could not load bookings.');
+      if (!isBackground) {
+        setErrorMessage('Could not load bookings.');
+      }
     } finally {
-      setIsLoading(false);
+      if (!isBackground) {
+        setIsLoading(false);
+      }
     }
   };
 
   // Fetch my bookings (all bookings for the current user)
-  const fetchMyBookings = async () => {
-    setIsMyBookingsLoading(true);
+  const fetchMyBookings = async (isBackground = false) => {
+    if (!isBackground) {
+      setIsMyBookingsLoading(true);
+    }
     try {
       const response = await api.get('/bookings');
       setMyBookings(response.data);
     } catch (err) {
       console.error('Error fetching my bookings:', err);
     } finally {
-      setIsMyBookingsLoading(false);
+      if (!isBackground) {
+        setIsMyBookingsLoading(false);
+      }
     }
   };
 
   // Connect to WebSocket Server
   const connectWebSocket = () => {
     if (ws.current) {
-      ws.current.close();
+      const socketToClose = ws.current;
+      socketToClose.onclose = null;
+      socketToClose.onerror = null;
+      if (socketToClose.readyState === WebSocket.CONNECTING) {
+        socketToClose.onopen = () => {
+          socketToClose.close();
+        };
+      } else {
+        socketToClose.close();
+      }
     }
 
     try {
-      const socket = new WebSocket('ws://localhost:8080');
+      const wsHost = window.location.hostname || 'localhost';
+      const socket = new WebSocket(`ws://${wsHost}:8080`);
       
       socket.onopen = () => {
-        console.log('WebSocket Connected to ws://localhost:8080');
+        if (ws.current !== socket) return;
+        console.log(`WebSocket Connected to ws://${wsHost}:8080`);
       };
 
       socket.onmessage = (event) => {
+        if (ws.current !== socket) return;
         try {
           const data = JSON.parse(event.data);
           if (data.type === 'hold_update') {
             setHolds(data.holds);
           } else if (data.type === 'refresh_calendar') {
             if (data.resource_id === parseInt(selectedAssetId)) {
-              fetchBookings();
+              fetchBookings(true);
             }
-            fetchMyBookings();
+            fetchMyBookings(true);
           }
         } catch (err) {
           console.error('WebSocket JSON parse error:', err);
@@ -174,10 +198,12 @@ export default function BookingsPage() {
       };
 
       socket.onerror = (error) => {
+        if (ws.current !== socket) return;
         console.warn('WebSocket connection error:', error);
       };
 
       socket.onclose = () => {
+        if (ws.current !== socket) return;
         if (isDisposed.current) return;
         console.log('WebSocket Connection closed. Retrying in 5 seconds...');
         reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
@@ -201,7 +227,16 @@ export default function BookingsPage() {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (ws.current) {
-        ws.current.close();
+        const socketToClose = ws.current;
+        socketToClose.onclose = null;
+        socketToClose.onerror = null;
+        if (socketToClose.readyState === WebSocket.CONNECTING) {
+          socketToClose.onopen = () => {
+            socketToClose.close();
+          };
+        } else {
+          socketToClose.close();
+        }
       }
     };
   }, []);
@@ -210,16 +245,43 @@ export default function BookingsPage() {
     fetchBookings();
   }, [selectedAssetId]);
 
-  // 1. Broadcast active hold to WebSocket server (Only depends on modal and inputs, NOT holds/bookings to break loops)
+  // 1-second tick to update countdown timers on daily timeline slots
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 1. Broadcast active hold to WebSocket server (loop-free and deadlock-free)
   useEffect(() => {
     if (!isModalOpen || !currentUser || !selectedAssetId) return;
 
-    const startStr = `${selectedDate} ${formStartTime}:00`;
-    const endStr = `${selectedDate} ${formEndTime}:00`;
+    const cleanStart = formStartTime.substring(0, 5);
+    const cleanEnd = formEndTime.substring(0, 5);
 
-    const startObj = new Date(`${selectedDate}T${formStartTime}:00`);
-    const endObj = new Date(`${selectedDate}T${formEndTime}:00`);
+    const startStr = `${selectedDate} ${cleanStart}:00`;
+    const endStr = `${selectedDate} ${cleanEnd}:00`;
 
+    const startObj = new Date(`${selectedDate}T${cleanStart}:00`);
+    const endObj = new Date(`${selectedDate}T${cleanEnd}:00`);
+
+    // Check if end time is valid
+    if (endObj <= startObj) return;
+
+    // Check if we already have this exact hold broadcasted/registered on the server
+    const myCurrentHold = holds.find(h => String(h.user_id) === String(currentUser.id));
+    const matchesCurrentInput = myCurrentHold && 
+      String(myCurrentHold.resource_id) === String(selectedAssetId) &&
+      myCurrentHold.start_datetime === startStr &&
+      myCurrentHold.end_datetime === endStr;
+      
+    if (matchesCurrentInput) {
+      // Loop prevention: we already have this hold registered on the server, no need to send again!
+      return;
+    }
+
+    // Check if there is an official booking conflict
     const hasBookingConflict = bookings.some(b => {
       if (b.status === 'Cancelled') return false;
       const bStart = new Date(b.start_datetime);
@@ -227,7 +289,17 @@ export default function BookingsPage() {
       return bStart < endObj && bEnd > startObj;
     });
 
-    if (!hasBookingConflict && ws.current && ws.current.readyState === WebSocket.OPEN) {
+    // Check if another user already holds this slot
+    const holdsOnSelectedAsset = holds.filter(h => 
+      h.resource_id === parseInt(selectedAssetId) && h.user_id !== currentUser.id
+    );
+    const isAlreadyHeld = holdsOnSelectedAsset.some(h => {
+      const hStart = new Date(h.start_datetime.replace(' ', 'T'));
+      const hEnd = new Date(h.end_datetime.replace(' ', 'T'));
+      return hStart < endObj && hEnd > startObj;
+    });
+
+    if (!isAlreadyHeld && !hasBookingConflict && ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: 'hold',
         resource_id: parseInt(selectedAssetId),
@@ -237,23 +309,46 @@ export default function BookingsPage() {
         user_name: currentUser.name
       }));
     }
+  }, [isModalOpen, formStartTime, formEndTime, selectedDate, selectedAssetId, currentUser, bookings, holds]);
 
+  // 1b. Release hold when modal closes or component unmounts
+  useEffect(() => {
     return () => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      if (currentUser && ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify({
           type: 'release',
           user_id: currentUser.id
         }));
       }
     };
-  }, [isModalOpen, formStartTime, formEndTime, selectedDate, selectedAssetId, currentUser]);
+  }, [isModalOpen, currentUser]);
 
   // 2. Perform validation checks (conflict warnings) when bookings, holds or form inputs change
   useEffect(() => {
     if (!isModalOpen || !currentUser || !selectedAssetId) return;
 
-    const startObj = new Date(`${selectedDate}T${formStartTime}:00`);
-    const endObj = new Date(`${selectedDate}T${formEndTime}:00`);
+    const cleanStart = formStartTime.substring(0, 5);
+    const cleanEnd = formEndTime.substring(0, 5);
+
+    const startObj = new Date(`${selectedDate}T${cleanStart}:00`);
+    const endObj = new Date(`${selectedDate}T${cleanEnd}:00`);
+
+    // Validations
+    if (endObj <= startObj) {
+      setFormConflictWarning('End time must be after start time.');
+      setFormHoldWarning(null);
+      return;
+    }
+
+    const startHour = parseInt(cleanStart.split(':')[0]);
+    const endHour = parseInt(cleanEnd.split(':')[0]);
+    const endMinute = parseInt(cleanEnd.split(':')[1]);
+
+    if (startHour < 8 || (endHour > 18 || (endHour === 18 && endMinute > 0))) {
+      setFormConflictWarning('Bookings must be within standard hours (08:00 - 18:00).');
+      setFormHoldWarning(null);
+      return;
+    }
 
     // Conflict with official bookings
     const hasBookingConflict = bookings.some(b => {
@@ -271,7 +366,7 @@ export default function BookingsPage() {
 
     // Real-time hold conflict check
     const holdsOnSelectedAsset = holds.filter(h => 
-      h.resource_id === parseInt(selectedAssetId) && h.user_id !== currentUser.id
+      String(h.resource_id) === String(selectedAssetId) && String(h.user_id) !== String(currentUser.id)
     );
 
     const hasHoldConflict = holdsOnSelectedAsset.some(h => {
@@ -291,6 +386,35 @@ export default function BookingsPage() {
       setFormHoldWarning(null);
     }
   }, [isModalOpen, formStartTime, formEndTime, selectedDate, selectedAssetId, bookings, holds, currentUser]);
+
+  // 3. Keep track of remaining hold duration for the current user
+  useEffect(() => {
+    if (!isModalOpen || !currentUser || !selectedAssetId) return;
+
+    const interval = setInterval(() => {
+      const cleanStart = formStartTime.substring(0, 5);
+      const cleanEnd = formEndTime.substring(0, 5);
+
+      const startStr = `${selectedDate} ${cleanStart}:00`;
+      const endStr = `${selectedDate} ${cleanEnd}:00`;
+      
+      const myHold = holds.find(h => 
+        String(h.user_id) === String(currentUser.id) &&
+        String(h.resource_id) === String(selectedAssetId) &&
+        h.start_datetime === startStr &&
+        h.end_datetime === endStr
+      );
+
+      if (myHold) {
+        const seconds = Math.max(0, Math.ceil((myHold.expires_at - Date.now()) / 1000));
+        setHoldSecondsLeft(seconds);
+      } else {
+        setHoldSecondsLeft(0);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isModalOpen, holds, currentUser, selectedAssetId, selectedDate, formStartTime, formEndTime]);
 
   // Helper to check if a slot starts in the past
   const isSlotInPast = (hour: number) => {
@@ -331,8 +455,11 @@ export default function BookingsPage() {
     setIsSubmitting(true);
     setErrorMessage(null);
     
-    const startDatetime = `${selectedDate} ${formStartTime}:00`;
-    const endDatetime = `${selectedDate} ${formEndTime}:00`;
+    const cleanStart = formStartTime.substring(0, 5);
+    const cleanEnd = formEndTime.substring(0, 5);
+    
+    const startDatetime = `${selectedDate} ${cleanStart}:00`;
+    const endDatetime = `${selectedDate} ${cleanEnd}:00`;
 
     try {
       await api.post('/bookings', {
@@ -407,28 +534,37 @@ export default function BookingsPage() {
     });
 
     if (matchingBooking) {
+      const bStart = new Date(matchingBooking.start_datetime);
+      const bEnd = new Date(matchingBooking.end_datetime);
+      const timeStr = `${bStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${bEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+      
       return {
         isBooked: true,
         isHeld: false,
-        label: `Booked: ${matchingBooking.user?.name || 'Reserved'} (${matchingBooking.purpose || 'No purpose stated'})`,
+        label: `Booked: ${matchingBooking.user?.name || 'Reserved'} [${timeStr}] (${matchingBooking.purpose || 'No purpose stated'})`,
         details: matchingBooking
       };
     }
 
     // 2. Check for Hold
     const matchingHold = holds.find(h => {
-      if (h.resource_id !== parseInt(selectedAssetId)) return false;
-      if (currentUser && h.user_id === currentUser.id) return false;
+      if (String(h.resource_id) !== String(selectedAssetId)) return false;
+      if (currentUser && String(h.user_id) === String(currentUser.id)) return false;
       const hStart = new Date(h.start_datetime.replace(' ', 'T'));
       const hEnd = new Date(h.end_datetime.replace(' ', 'T'));
       return hStart < slotEnd && hEnd > slotStart;
     });
 
     if (matchingHold) {
+      const hStart = new Date(matchingHold.start_datetime.replace(' ', 'T'));
+      const hEnd = new Date(matchingHold.end_datetime.replace(' ', 'T'));
+      const timeStr = `${hStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${hEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+      const secondsLeft = Math.max(0, Math.ceil((matchingHold.expires_at - Date.now()) / 1000));
+      
       return {
         isBooked: false,
         isHeld: true,
-        label: `Draft Hold by ${matchingHold.user_name}`,
+        label: `Draft Hold by ${matchingHold.user_name} [${timeStr}] (${secondsLeft}s left)`,
         details: matchingHold
       };
     }
@@ -440,6 +576,17 @@ export default function BookingsPage() {
       details: null
     };
   };
+
+  const cleanFormStart = formStartTime.substring(0, 5);
+  const cleanFormEnd = formEndTime.substring(0, 5);
+  const formStartStr = `${selectedDate} ${cleanFormStart}:00`;
+  const formEndStr = `${selectedDate} ${cleanFormEnd}:00`;
+  const hasMyHoldOnServer = holds.some(h => 
+    String(h.user_id) === String(currentUser?.id) &&
+    String(h.resource_id) === String(selectedAssetId) &&
+    h.start_datetime === formStartStr &&
+    h.end_datetime === formEndStr
+  );
 
   const selectedAsset = bookableAssets.find(a => a.id.toString() === selectedAssetId);
 
@@ -567,7 +714,7 @@ export default function BookingsPage() {
                     if (isBooked) {
                       slotStyles = "bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/15 cursor-not-allowed border-l-4 border-l-rose-500 text-rose-200";
                     } else if (isHeld) {
-                      slotStyles = "bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15 cursor-not-allowed border-l-4 border-l-amber-500 text-amber-200 animate-pulse bg-stripes";
+                      slotStyles = "bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15 cursor-not-allowed border-l-4 border-l-amber-500 text-amber-200 bg-stripes";
                     } else if (isPast) {
                       slotStyles = "bg-zinc-500/5 border-zinc-500/10 cursor-not-allowed border-l-4 border-l-zinc-500 text-zinc-400 opacity-60";
                       label = "Past Slot (Not Bookable)";
@@ -693,8 +840,21 @@ export default function BookingsPage() {
                           const dateStr = bStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                           const timeStr = `${bStart.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })} - ${bEnd.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
+                          // Calculate dynamic status for display
+                          let displayStatus = b.status;
+                          if (b.status !== 'Cancelled') {
+                            const now = new Date();
+                            if (now >= bEnd) {
+                              displayStatus = 'Completed';
+                            } else if (now >= bStart) {
+                              displayStatus = 'Ongoing';
+                            } else {
+                              displayStatus = 'Upcoming';
+                            }
+                          }
+
                           let statusBadge = null;
-                          switch (b.status) {
+                          switch (displayStatus) {
                             case 'Upcoming':
                               statusBadge = <Badge className="bg-blue-600 text-white hover:bg-blue-600/80 rounded-lg text-[10px] py-0.5 px-2">Upcoming</Badge>;
                               break;
@@ -710,7 +870,7 @@ export default function BookingsPage() {
                           }
 
                           // Determine if cancellable (must be upcoming and booker can cancel)
-                          const isCancellable = b.status === 'Upcoming' && (b.user_id === currentUser?.id || isAdminOrManager) && new Date(b.start_datetime) > new Date();
+                          const isCancellable = displayStatus === 'Upcoming' && (b.user_id === currentUser?.id || isAdminOrManager) && bStart > new Date();
 
                           return (
                             <TableRow key={b.id} className="border-b border-border/40 hover:bg-white/5">
@@ -800,35 +960,30 @@ export default function BookingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="form-start" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Start Time</Label>
-                <Select value={formStartTime} onValueChange={setFormStartTime}>
-                  <SelectTrigger id="form-start" className="bg-background border-border/60 rounded-2xl text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border text-white">
-                    {HOURS.map(h => {
-                      const timeStr = `${h.toString().padStart(2, '0')}:00`;
-                      return <SelectItem key={h} value={timeStr}>{timeStr}</SelectItem>;
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input 
+                  type="time"
+                  id="form-start"
+                  value={formStartTime}
+                  onChange={(e) => setFormStartTime(e.target.value)}
+                  className="bg-background border-border/60 rounded-2xl text-white pl-4"
+                  required
+                  min="08:00"
+                  max="18:00"
+                />
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="form-end" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">End Time</Label>
-                <Select value={formEndTime} onValueChange={setFormEndTime}>
-                  <SelectTrigger id="form-end" className="bg-background border-border/60 rounded-2xl text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border text-white">
-                    {HOURS.concat(18).filter(h => {
-                      const startHour = parseInt(formStartTime.split(':')[0]);
-                      return h > startHour;
-                    }).map(h => {
-                      const timeStr = `${h.toString().padStart(2, '0')}:00`;
-                      return <SelectItem key={h} value={timeStr}>{timeStr}</SelectItem>;
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input 
+                  type="time"
+                  id="form-end"
+                  value={formEndTime}
+                  onChange={(e) => setFormEndTime(e.target.value)}
+                  className="bg-background border-border/60 rounded-2xl text-white pl-4"
+                  required
+                  min={formStartTime || "08:00"}
+                  max="18:00"
+                />
               </div>
             </div>
 
@@ -859,10 +1014,17 @@ export default function BookingsPage() {
               </div>
             )}
 
-            {!formConflictWarning && !formHoldWarning && (
+            {!formConflictWarning && !formHoldWarning && hasMyHoldOnServer && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-2xl p-3 flex items-center gap-2.5 text-xs font-semibold">
                 <User className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                Slot is currently hold-locked for you. Other users cannot select it.
+                Slot is currently hold-locked for you. Auto-release in {holdSecondsLeft}s.
+              </div>
+            )}
+
+            {!formConflictWarning && !formHoldWarning && !hasMyHoldOnServer && (
+              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-2xl p-3 flex items-center gap-2.5 text-xs font-semibold">
+                <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 animate-pulse" />
+                Hold expired. Re-open the modal or adjust times to re-lock this slot.
               </div>
             )}
 
@@ -885,7 +1047,7 @@ export default function BookingsPage() {
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting || !!formConflictWarning || !!formHoldWarning}
+                disabled={isSubmitting || !!formConflictWarning || !!formHoldWarning || !hasMyHoldOnServer}
                 className="bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-2xl shadow-lg"
               >
                 {isSubmitting ? 'Reserving...' : 'Confirm Reservation'}

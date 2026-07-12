@@ -13,6 +13,18 @@ function broadcast(data) {
     });
 }
 
+function broadcastHolds() {
+    const clientsHolds = holds.map(h => ({
+        resource_id: h.resource_id,
+        start_datetime: h.start_datetime,
+        end_datetime: h.end_datetime,
+        user_id: h.user_id,
+        user_name: h.user_name,
+        expires_at: h.expires_at
+    }));
+    broadcast({ type: 'hold_update', holds: clientsHolds });
+}
+
 // Periodically clean up expired holds
 setInterval(() => {
     const now = Date.now();
@@ -20,7 +32,7 @@ setInterval(() => {
     holds = holds.filter(h => h.expires_at > now);
     if (holds.length !== prevCount) {
         console.log(`Cleaned up expired holds. Current holds:`, holds.length);
-        broadcast({ type: 'hold_update', holds });
+        broadcastHolds();
     }
 }, 1000);
 
@@ -28,7 +40,15 @@ wss.on('connection', (ws) => {
     console.log('Client connected');
     
     // Immediately send current holds to new client
-    ws.send(JSON.stringify({ type: 'hold_update', holds }));
+    const clientsHolds = holds.map(h => ({
+        resource_id: h.resource_id,
+        start_datetime: h.start_datetime,
+        end_datetime: h.end_datetime,
+        user_id: h.user_id,
+        user_name: h.user_name,
+        expires_at: h.expires_at
+    }));
+    ws.send(JSON.stringify({ type: 'hold_update', holds: clientsHolds }));
 
     ws.on('message', (message) => {
         try {
@@ -46,22 +66,23 @@ wss.on('connection', (ws) => {
                         end_datetime: data.end_datetime,
                         user_id: data.user_id,
                         user_name: data.user_name,
-                        expires_at: Date.now() + 60000 // 60 seconds expiration
+                        expires_at: Date.now() + 60000, // 60 seconds expiration
+                        ws: ws
                     });
-                    broadcast({ type: 'hold_update', holds });
+                    broadcastHolds();
                     break;
 
                 case 'release':
                     // Release holds by this user
                     holds = holds.filter(h => h.user_id !== data.user_id);
-                    broadcast({ type: 'hold_update', holds });
+                    broadcastHolds();
                     break;
 
                 case 'booking_created':
                 case 'booking_cancelled':
                     // When a booking is created or cancelled, clear the user's hold and broadcast refresh
                     holds = holds.filter(h => h.user_id !== data.user_id);
-                    broadcast({ type: 'hold_update', holds });
+                    broadcastHolds();
                     broadcast({ type: 'refresh_calendar', resource_id: parseInt(data.resource_id) });
                     break;
 
@@ -75,6 +96,12 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log('Client disconnected');
+        const prevCount = holds.length;
+        holds = holds.filter(h => h.ws !== ws);
+        if (holds.length !== prevCount) {
+            console.log(`Cleaned up holds for disconnected client.`);
+            broadcastHolds();
+        }
     });
 });
 

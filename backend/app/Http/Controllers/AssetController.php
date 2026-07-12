@@ -20,14 +20,18 @@ class AssetController extends Controller
         $user = $request->user();
         $query = Asset::with(['category', 'department', 'holder']);
 
-        // Scope directory lists by user roles
-        if ($user->isEmployee()) {
-            $query->where('holder_id', $user->id);
-        } elseif ($user->isDeptHead()) {
-            $query->where(function ($q) use ($user) {
-                $q->where('holder_id', $user->id)
-                  ->orWhere('department_id', $user->department_id);
-            });
+        // Scope directory lists by user roles (unless querying bookable resources for booking portal)
+        if (!$request->has('is_bookable')) {
+            if ($user->isEmployee()) {
+                $query->where('holder_id', $user->id);
+            } elseif ($user->isDeptHead()) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('holder_id', $user->id)
+                      ->orWhere('department_id', $user->department_id);
+                });
+            }
+        } else {
+            $query->where('is_bookable', filter_var($request->is_bookable, FILTER_VALIDATE_BOOLEAN));
         }
 
         // Apply filters & search scopes

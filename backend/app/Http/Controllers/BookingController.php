@@ -21,21 +21,20 @@ class BookingController extends Controller
         $user = $request->user();
         $query = Booking::with(['resource', 'user', 'department']);
 
-        // Scope lists by roles
-        if ($user->isEmployee()) {
-            $query->where('user_id', $user->id);
-        } elseif ($user->isDeptHead()) {
-            $query->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                  ->orWhere('department_id', $user->department_id)
-                  ->orWhereHas('user', function ($uq) use ($user) {
-                      $uq->where('department_id', $user->department_id);
-                  });
-            });
-        }
-
-        // Apply resource filter
-        if ($request->has('resource_id')) {
+        // Scope lists by roles (unless filtering by a specific resource's schedule)
+        if (!$request->has('resource_id')) {
+            if ($user->isEmployee()) {
+                $query->where('user_id', $user->id);
+            } elseif ($user->isDeptHead()) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('department_id', $user->department_id)
+                      ->orWhereHas('user', function ($uq) use ($user) {
+                          $uq->where('department_id', $user->department_id);
+                      });
+                });
+            }
+        } else {
             $query->where('resource_id', $request->resource_id);
         }
 
