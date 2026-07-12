@@ -318,24 +318,24 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Analytics Tasks
 
-- [ ] **Task 10.1: KPI Metrics Engine API**
+- [x] **Task 10.1: KPI Metrics Engine API**
   - *Description:* Endpoint retrieving summary numbers for dashboard cards.
   - *Details:*
     - In `DashboardController`, return counters: Total Assets, Available, Allocated, Under Maintenance, Upcoming/Overdue Returns, Active Bookings.
 
-- [ ] **Task 10.2: Usage heatmaps query & charts API**
+- [x] **Task 10.2: Usage heatmaps query & charts API**
   - *Description:* Return hourly booking density arrays for shared resources.
   - *Details:*
     - Write aggregated queries grouping booking records by day-of-week and hour-of-day.
     - Fetch list of idle items (assets with zero bookings/allocations in the last 30/60 days).
     - Fetch list of items nearing retirement (e.g., Laptops > 3 years old).
 
-- [ ] **Task 10.3: CSV / PDF Exporter**
+- [x] **Task 10.3: CSV / PDF Exporter**
   - *Description:* Build reports exporter using Laravel.
   - *Details:*
     - Write exporter controllers generating CSV schemas or PDF downloads of allocation lists, maintenance histories, or audit logs.
 
-- [ ] **Task 10.4: React Dashboard Analytics**
+- [x] **Task 10.4: React Dashboard Analytics**
   - *Description:* Screen 9 UI featuring graphs, heatmaps, and stats.
   - *Details:*
     - Render utilization grids, charts, and tables for idle and nearing retirement assets.

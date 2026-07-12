@@ -4,33 +4,8 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import LoginPage from '@/modules/auth/LoginPage';
 import RegisterPage from '@/modules/auth/RegisterPage';
-
-// Simple Premium styled Page Placeholders for routing validation
-const Dashboard = () => (
-  <div className="space-y-6">
-    <div className="flex justify-between items-center">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">Real-time operational snapshot of corporate assets.</p>
-      </div>
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-card border border-border/60 rounded-3xl p-6 shadow-soft">
-        <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Total Assets</h3>
-        <p className="text-3xl font-extrabold text-white mt-2">1,248</p>
-      </div>
-      <div className="bg-card border border-border/60 rounded-3xl p-6 shadow-soft">
-        <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Active Bookings</h3>
-        <p className="text-3xl font-extrabold text-white mt-2">42</p>
-      </div>
-      <div className="bg-card border border-border/60 rounded-3xl p-6 shadow-soft">
-        <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Pending Audits</h3>
-        <p className="text-3xl font-extrabold text-white mt-2">3</p>
-      </div>
-    </div>
-  </div>
-);
-
+import DashboardPage from '@/modules/dashboard/DashboardPage';
+import ReportsPage from '@/modules/reports/ReportsPage';
 import SetupPage from '@/modules/setup/SetupPage';
 import AssetsPage from '@/modules/assets/AssetsPage';
 import AllocationsPage from '@/modules/allocations/AllocationsPage';
@@ -49,14 +24,6 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 // Placeholders for remaining routing validation
-
-const Reports = () => (
-  <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
-    <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Reports & Analytics</h1>
-    <p className="text-muted-foreground text-sm">Lifecycle depreciation, utilization, and cost analytics.</p>
-  </div>
-);
-
 const Notifications = () => (
   <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
     <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Notifications</h1>
@@ -82,7 +49,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Dashboard />} />
+            <Route index element={<DashboardPage />} />
             <Route 
               path="setup" 
               element={
@@ -96,7 +63,7 @@ function App() {
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="maintenance" element={<MaintenancePage />} />
             <Route path="audits" element={<AuditsPage />} />
-            <Route path="reports" element={<Reports />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="notifications" element={<Notifications />} />
             
             {/* Catch-all Redirect to Dashboard */}

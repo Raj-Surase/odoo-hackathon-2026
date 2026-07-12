@@ -12,6 +12,8 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportExportController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -89,6 +91,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/audits/{auditCycle}', [AuditController::class, 'show']);
         Route::patch('/audits/lines/{auditLine}', [AuditController::class, 'updateLine']);
         Route::post('/audits/{auditCycle}/close', [AuditController::class, 'close']);
+
+        // Dashboard & Reports Routes
+        Route::get('/dashboard/kpis', [DashboardController::class, 'getKpis']);
+        Route::get('/dashboard/analytics', [DashboardController::class, 'getAnalytics']);
+        Route::get('/reports/export', [ReportExportController::class, 'export']);
     });
 });
 
