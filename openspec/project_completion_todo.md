@@ -46,14 +46,14 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Model & Migration Tasks
 
-- [ ] **Task 2.1: Migrations for Base Tables**
+- [x] **Task 2.1: Migrations for Base Tables**
   - *Description:* Write database migrations defining columns and foreign keys for base entities: `departments`, `categories`, and user table alterations.
   - *Details:*
     - Add `role` (enum/string: Employee, Dept Head, Asset Manager, Admin), `department_id` (unsignedBigInteger foreign key, nullable), and `status` (enum/string: Active, Inactive) to the `users` table migration.
     - Create `departments` table migration: `id`, `name` (unique string), `head_id` (foreign key to users, nullable), `parent_id` (foreign key to departments, nullable), `status` (Active/Inactive), timestamps.
     - Create `categories` table migration: `id`, `name` (unique string), `custom_fields` (json, nullable), timestamps.
 
-- [ ] **Task 2.2: Migrations for Core Asset Tracking**
+- [x] **Task 2.2: Migrations for Core Asset Tracking**
   - *Description:* Setup tables for assets, allocations, transfers, and resource bookings.
   - *Details:*
     - Create `assets` migration: `id`, `name` (string), `asset_tag` (string, unique), `serial_number` (string, unique, nullable), `category_id` (foreign key), `acquisition_date` (date, nullable), `acquisition_cost` (decimal, nullable), `condition` (string/enum), `location` (string, nullable), `status` (string/enum), `is_bookable` (boolean), `department_id` (foreign key, nullable), `holder_id` (foreign key to users, nullable), `photo_path` (string, nullable), timestamps.
@@ -61,7 +61,7 @@ This document details the step-by-step development process to implement AssetFlo
     - Create `asset_transfers` migration: `id`, `asset_id` (foreign key), `from_user_id` (foreign key), `to_user_id` (foreign key), `reason` (text), `status` (string/enum: Requested/Approved/Rejected/Re-allocated), `approved_by` (foreign key, nullable), timestamps.
     - Create `bookings` migration: `id`, `resource_id` (foreign key to assets), `user_id` (foreign key), `department_id` (foreign key, nullable), `start_datetime` (datetime), `end_datetime` (datetime), `purpose` (text, nullable), `status` (string/enum: Upcoming/Ongoing/Completed/Cancelled), timestamps.
 
-- [ ] **Task 2.3: Migrations for Maintenance, Audits & Events**
+- [x] **Task 2.3: Migrations for Maintenance, Audits & Events**
   - *Description:* Setup schemas for maintenance pipeline, audit logs, notifications, and verification records.
   - *Details:*
     - Create `maintenance_requests` migration: `id`, `asset_id` (foreign key), `user_id` (foreign key), `issue_description` (text), `priority` (string/enum: Low/Medium/High/Critical), `photo_path` (string, nullable), `technician_id` (foreign key, nullable), `status` (string/enum), `approved_by` (foreign key, nullable), `resolution_notes` (text, nullable), `resolution_date` (datetime, nullable), timestamps.
@@ -72,7 +72,7 @@ This document details the step-by-step development process to implement AssetFlo
     - Create `notifications` migration: `id`, `recipient_id` (foreign key), `type` (string), `title` (string), `message` (text), `is_read` (boolean, default false), `reference_type` (string, polymorphic), `reference_id` (integer, polymorphic), timestamps.
     - Create `audit_logs` migration: `id`, `user_id` (foreign key), `action` (string), `model` (string), `record_id` (integer), `old_values` (json, nullable), `new_values` (json, nullable), `timestamp` (datetime), timestamps.
 
-- [ ] **Task 2.4: Eloquent Model Relationships**
+- [x] **Task 2.4: Eloquent Model Relationships**
   - *Description:* Define database relations on Laravel models.
   - *Details:*
     - Define relations: `Asset` belongsTo `Category` / hasMany `Allocation` / hasMany `Booking` / belongsTo `User` (holder).

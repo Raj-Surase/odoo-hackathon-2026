@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'department_id',
+        'status',
     ];
 
     /**
@@ -46,5 +49,55 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function allocations()
+    {
+        return $this->hasMany(Allocation::class);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function transfersSent()
+    {
+        return $this->hasMany(AssetTransfer::class, 'from_user_id');
+    }
+
+    public function transfersReceived()
+    {
+        return $this->hasMany(AssetTransfer::class, 'to_user_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'recipient_id');
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === 'Employee';
+    }
+
+    public function isDeptHead(): bool
+    {
+        return $this->role === 'Dept Head';
+    }
+
+    public function isAssetManager(): bool
+    {
+        return $this->role === 'Asset Manager';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'Admin';
     }
 }
