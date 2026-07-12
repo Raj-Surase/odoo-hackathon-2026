@@ -148,19 +148,7 @@ class AuditController extends Controller
             $asset = $auditLine->asset;
             $message = "Audit discrepancy flagged: {$asset->asset_tag} " . strtolower($validated['verification']);
             
-            $managers = User::whereIn('role', ['Admin', 'Asset Manager'])->get();
-            foreach ($managers as $manager) {
-                Notification::firstOrCreate([
-                    'recipient_id' => $manager->id,
-                    'type' => 'audit_discrepancy',
-                    'reference_type' => AuditLine::class,
-                    'reference_id' => $auditLine->id,
-                ], [
-                    'title' => 'Audit Discrepancy Flagged',
-                    'message' => $message,
-                    'is_read' => false,
-                ]);
-            }
+            event(new \App\Events\AuditDiscrepancyFlagged($auditLine));
         } else {
             $hasDiscrepancies = AuditLine::where('audit_cycle_id', $cycle->id)
                 ->whereIn('verification', ['Missing', 'Damaged'])

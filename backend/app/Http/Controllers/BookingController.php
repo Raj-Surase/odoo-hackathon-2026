@@ -104,15 +104,7 @@ class BookingController extends Controller
         ]);
 
         // Send confirmation notification
-        Notification::create([
-            'recipient_id' => $user->id,
-            'type' => 'Alert',
-            'title' => 'Booking Confirmed',
-            'message' => "Booking confirmed: " . $resource->name . " on " . $newStart->format('Y-m-d H:i') . " to " . $newEnd->format('H:i') . ".",
-            'reference_type' => Booking::class,
-            'reference_id' => $booking->id,
-            'is_read' => false,
-        ]);
+        event(new \App\Events\BookingConfirmed($booking));
 
         return response()->json($booking->load(['resource', 'user', 'department']), 201);
     }

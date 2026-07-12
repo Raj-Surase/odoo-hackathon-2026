@@ -29,4 +29,15 @@ class AuditLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function booted()
+    {
+        static::updating(function ($model) {
+            throw new \Exception('Audit logs are immutable and cannot be updated.');
+        });
+
+        static::deleting(function ($model) {
+            throw new \Exception('Audit logs are immutable and cannot be deleted.');
+        });
+    }
 }

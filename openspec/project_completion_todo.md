@@ -347,19 +347,19 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Log & Alert Tasks
 
-- [ ] **Task 11.1: Event Listener alert hooks**
+- [x] **Task 11.1: Event Listener alert hooks**
   - *Description:* Laravel events and listeners to trigger notifications.
   - *Details:*
     - Set up event classes: `AssetAssigned`, `MaintenanceApproved`, `BookingConfirmed`, `TransferApproved`, `AuditDiscrepancyFlagged`.
     - Setup Event Listeners writing records to the `notifications` table.
 
-- [ ] **Task 11.2: Immutable Audit Log Middleware**
+- [x] **Task 11.2: Immutable Audit Log Middleware**
   - *Description:* Backend interceptor logging CRUD database activities.
   - *Details:*
     - Create a Global/Model middleware or base model logging model changes.
     - Save actions (user, model, action, timestamp, JSON delta changes) to the `audit_logs` table. Prevent update/delete requests on this model.
 
-- [ ] **Task 11.3: Real-Time Alerts notifications panel**
+- [x] **Task 11.3: Real-Time Alerts notifications panel**
   - *Description:* Screen 10 layout containing categorised feed lists.
   - *Details:*
     - Build frontend React view containing tabs: All, Alerts, Approvals, Bookings.

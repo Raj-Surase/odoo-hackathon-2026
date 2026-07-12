@@ -97,15 +97,7 @@ class AllocationController extends Controller
         ]);
 
         // Dispatch Assignment Notification
-        Notification::create([
-            'recipient_id' => $employee->id,
-            'type' => 'Alert',
-            'title' => 'Asset Assigned',
-            'message' => "Asset {$asset->name} ({$asset->asset_tag}) has been allocated to you.",
-            'reference_type' => Asset::class,
-            'reference_id' => $asset->id,
-            'is_read' => false,
-        ]);
+        event(new \App\Events\AssetAssigned($allocation));
 
         return response()->json($allocation->load(['user', 'department', 'asset']), 201);
     }

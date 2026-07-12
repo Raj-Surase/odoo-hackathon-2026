@@ -12,6 +12,7 @@ import AllocationsPage from '@/modules/allocations/AllocationsPage';
 import BookingsPage from '@/modules/bookings/BookingsPage';
 import MaintenancePage from '@/modules/maintenance/MaintenancePage';
 import AuditsPage from '@/modules/audits/AuditsPage';
+import NotificationsPage from '@/modules/notifications/NotificationsPage';
 import { useAuth } from '@/modules/auth/AuthContext';
 
 // Admin-Only Route Guard
@@ -23,13 +24,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
-// Placeholders for remaining routing validation
-const Notifications = () => (
-  <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
-    <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Notifications</h1>
-    <p className="text-muted-foreground text-sm">System notifications, approval alerts, and audit logs.</p>
-  </div>
-);
+
 
 function App() {
   return (
@@ -64,7 +59,7 @@ function App() {
             <Route path="maintenance" element={<MaintenancePage />} />
             <Route path="audits" element={<AuditsPage />} />
             <Route path="reports" element={<ReportsPage />} />
-            <Route path="notifications" element={<Notifications />} />
+            <Route path="notifications" element={<NotificationsPage />} />
             
             {/* Catch-all Redirect to Dashboard */}
             <Route path="*" element={<Navigate to="/" replace />} />

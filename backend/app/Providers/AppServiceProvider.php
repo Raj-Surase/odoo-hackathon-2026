@@ -69,5 +69,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Register MaintenanceRequest Observer
         \App\Models\MaintenanceRequest::observe(\App\Observers\MaintenanceRequestObserver::class);
+
+        // Register Event Listeners
+        \Illuminate\Support\Facades\Event::listen(\App\Events\AssetAssigned::class, \App\Listeners\WriteNotification::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\MaintenanceApproved::class, \App\Listeners\WriteNotification::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\BookingConfirmed::class, \App\Listeners\WriteNotification::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\TransferApproved::class, \App\Listeners\WriteNotification::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\AuditDiscrepancyFlagged::class, \App\Listeners\WriteNotification::class);
     }
 }

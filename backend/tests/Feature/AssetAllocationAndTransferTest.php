@@ -133,7 +133,7 @@ class AssetAllocationAndTransferTest extends TestCase
         // Verify Assignment Notification was sent
         $this->assertDatabaseHas('notifications', [
             'recipient_id' => $this->employeeIT->id,
-            'type' => 'Alert',
+            'type' => 'asset_assigned',
             'title' => 'Asset Assigned',
         ]);
 

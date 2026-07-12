@@ -183,27 +183,8 @@ class TransferController extends Controller
             ]);
         }
 
-        // Notify new holder (recipient)
-        Notification::create([
-            'recipient_id' => $recipient->id,
-            'type' => 'Alert',
-            'title' => 'Asset Transfer Approved',
-            'message' => "Asset {$asset->name} ({$asset->asset_tag}) has been transferred to you.",
-            'reference_type' => Asset::class,
-            'reference_id' => $asset->id,
-            'is_read' => false,
-        ]);
-
-        // Notify previous holder
-        Notification::create([
-            'recipient_id' => $transfer->from_user_id,
-            'type' => 'Alert',
-            'title' => 'Asset Transferred Out',
-            'message' => "Asset {$asset->name} ({$asset->asset_tag}) has been transferred to {$recipient->name}.",
-            'reference_type' => Asset::class,
-            'reference_id' => $asset->id,
-            'is_read' => false,
-        ]);
+        // Dispatch TransferApproved event
+        event(new \App\Events\TransferApproved($transfer));
 
         return response()->json($transfer->load(['asset', 'fromUser', 'toUser', 'approvedBy']));
     }

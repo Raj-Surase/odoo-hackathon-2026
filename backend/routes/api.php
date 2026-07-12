@@ -14,6 +14,8 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportExportController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AuditLogController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -96,6 +98,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard/kpis', [DashboardController::class, 'getKpis']);
         Route::get('/dashboard/analytics', [DashboardController::class, 'getAnalytics']);
         Route::get('/reports/export', [ReportExportController::class, 'export']);
+
+        // Notification & Audit Log Routes
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
     });
 });
 

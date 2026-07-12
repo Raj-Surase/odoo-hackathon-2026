@@ -21,6 +21,7 @@ class MaintenanceRequestObserver
                     $asset->status = 'Under Maintenance';
                     $asset->save();
                 }
+                event(new \App\Events\MaintenanceApproved($maintenanceRequest));
             }
 
             if ($newStatus === 'Resolved') {
