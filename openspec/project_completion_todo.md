@@ -371,14 +371,14 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Final Review Tasks
 
-- [ ] **Task 12.1: Seeder scripts for realistic demo data**
+- [x] **Task 12.1: Seeder scripts for realistic demo data**
   - *Description:* Setup MySQL seed scripts with wireframe data.
   - *Details:*
     - Populate base tables: Aditi Rao, Rohan Mehta, Sana Iqbal, departments, categories.
     - Register sample assets: Dell Laptop (AF-0012), Projector (AF-0062), Office Chair (AF-0201), AC Unit (AF-003).
     - Seed sample allocations, bookings, and resolved maintenance entries.
 
-- [ ] **Task 12.2: Pest/PHPUnit Backend testing suite**
+- [x] **Task 12.2: Pest/PHPUnit Backend testing suite**
   - *Description:* Write backend controller integration tests.
   - *Details:*
     - Write tests for login signup (Employee-only check).
@@ -386,13 +386,13 @@ This document details the step-by-step development process to implement AssetFlo
     - Write tests for zero-overlap bookings.
     - Run: `php artisan test`.
 
-- [ ] **Task 12.3: Vitest Frontend component testing**
+- [x] **Task 12.3: Vitest Frontend component testing**
   - *Description:* Verify components render correctly.
   - *Details:*
     - Write frontend tests verifying routing protections and input validations.
     - Run: `npm run test` (or pnpm test).
 
-- [ ] **Task 12.4: Production Build compilations**
+- [x] **Task 12.4: Production Build compilations**
   - *Description:* Build distribution assets.
   - *Details:*
     - Run frontend build compiler: `npm run build`. Verify no TypeScript compilation errors.
