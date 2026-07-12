@@ -5,14 +5,9 @@ import {
   Search,
   Calendar,
   AlertTriangle,
-  Clock,
-  Check,
   X,
   History,
-  ArrowLeftRight,
   UserCheck,
-  ClipboardList,
-  Layers,
   ArrowRight,
   CheckCircle2,
   AlertCircle
@@ -27,6 +22,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface User {
   id: number;
@@ -187,7 +183,7 @@ export default function AllocationsPage() {
     try {
       if (isTransferFlow) {
         // Submit Transfer Request
-        const res = await api.post('/transfers', {
+        await api.post('/transfers', {
           asset_id: selectedAssetId,
           to_user_id: selectedEmployeeId,
           reason: transferReason
@@ -409,105 +405,136 @@ export default function AllocationsPage() {
 
             <CardContent className="p-0">
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-muted-foreground text-sm">Loading allocations data...</p>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Employee</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Department</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Allocated Date</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Expected Return</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Status</TableHead>
+                        <TableHead className="font-bold text-muted-foreground text-right pr-6">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: 4 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/40">
+                          <TableCell className="pl-6 py-4">
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-28 bg-muted/40" />
+                              <Skeleton className="h-3 w-16 bg-muted/40 font-mono" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-24 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-6 w-16 rounded-full bg-muted/40" /></TableCell>
+                          <TableCell className="text-right pr-6 py-4"><Skeleton className="h-8 w-20 ml-auto rounded-xl bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               ) : filteredAllocations.length === 0 ? (
                 <div className="text-center p-12 text-muted-foreground text-sm">
                   No allocations found matching the criteria.
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b border-border/40 hover:bg-transparent">
-                      <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Employee</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Department</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Allocated Date</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Expected Return</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Status</TableHead>
-                      <TableHead className="font-bold text-muted-foreground text-right pr-6">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAllocations.map(alloc => (
-                      <TableRow key={alloc.id} className="border-b border-border/40 hover:bg-muted/5 transition-colors">
-                        <TableCell className="pl-6 py-4">
-                          <div>
-                            <div className="font-semibold text-white">{alloc.asset?.name}</div>
-                            <button
-                              onClick={() => {
-                                setSelectedAssetForTimeline(alloc.asset || null);
-                                if (alloc.asset) {
-                                  fetchTimeline(alloc.asset.id);
-                                  setIsTimelineDialogOpen(true);
-                                }
-                              }}
-                              className="text-xs text-primary hover:underline font-mono mt-0.5 flex items-center gap-1"
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Employee</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Department</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Allocated Date</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Expected Return</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Status</TableHead>
+                        <TableHead className="font-bold text-muted-foreground text-right pr-6">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAllocations.map(alloc => (
+                        <TableRow key={alloc.id} className="border-b border-border/40 hover:bg-muted/5 transition-colors">
+                          <TableCell className="pl-6 py-4">
+                            <div>
+                              <div className="font-semibold text-white">{alloc.asset?.name}</div>
+                              <button
+                                onClick={() => {
+                                  setSelectedAssetForTimeline(alloc.asset || null);
+                                  if (alloc.asset) {
+                                    fetchTimeline(alloc.asset.id);
+                                    setIsTimelineDialogOpen(true);
+                                  }
+                                }}
+                                className="text-xs text-primary hover:underline font-mono mt-0.5 flex items-center gap-1"
+                              >
+                                <History className="w-3 h-3" />
+                                {alloc.asset?.asset_tag}
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-white py-4 font-medium">{alloc.user?.name || 'Unassigned'}</TableCell>
+                          <TableCell className="text-muted-foreground py-4">{alloc.department?.name || '-'}</TableCell>
+                          <TableCell className="text-muted-foreground py-4">
+                            {alloc.allocated_date ? new Date(alloc.allocated_date).toLocaleDateString() : '-'}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-4">
+                            {alloc.expected_return ? new Date(alloc.expected_return).toLocaleDateString() : 'Indefinite'}
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Badge
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                alloc.status === 'Active'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : alloc.status === 'Overdue'
+                                  ? 'bg-destructive/15 text-red-400 border border-destructive/20 animate-pulse'
+                                  : 'bg-muted/40 text-muted-foreground border border-border/40'
+                              }`}
                             >
-                              <History className="w-3 h-3" />
-                              {alloc.asset?.asset_tag}
-                            </button>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-white py-4 font-medium">{alloc.user?.name || 'Unassigned'}</TableCell>
-                        <TableCell className="text-muted-foreground py-4">{alloc.department?.name || '-'}</TableCell>
-                        <TableCell className="text-muted-foreground py-4">
-                          {alloc.allocated_date ? new Date(alloc.allocated_date).toLocaleDateString() : '-'}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-4">
-                          {alloc.expected_return ? new Date(alloc.expected_return).toLocaleDateString() : 'Indefinite'}
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <Badge
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              alloc.status === 'Active'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                : alloc.status === 'Overdue'
-                                ? 'bg-destructive/15 text-red-400 border border-destructive/20 animate-pulse'
-                                : 'bg-muted/40 text-muted-foreground border border-border/40'
-                            }`}
-                          >
-                            {alloc.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right pr-6 py-4">
-                          <div className="flex justify-end items-center gap-2">
-                            {isAdminOrManager && (alloc.status === 'Active' || alloc.status === 'Overdue') && (
+                              {alloc.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right pr-6 py-4">
+                            <div className="flex justify-end items-center gap-2">
+                              {isAdminOrManager && (alloc.status === 'Active' || alloc.status === 'Overdue') && (
+                                <Button
+                                  onClick={() => {
+                                    setSelectedAllocation(alloc);
+                                    setReturnCondition('Good');
+                                    setReturnNotes('');
+                                    setIsReturnDialogOpen(true);
+                                  }}
+                                  size="sm"
+                                  className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-xl px-3 py-1 text-xs"
+                                >
+                                  Return
+                                </Button>
+                              )}
                               <Button
                                 onClick={() => {
-                                  setSelectedAllocation(alloc);
-                                  setReturnCondition('Good');
-                                  setReturnNotes('');
-                                  setIsReturnDialogOpen(true);
+                                  setSelectedAssetForTimeline(alloc.asset || null);
+                                  if (alloc.asset) {
+                                    fetchTimeline(alloc.asset.id);
+                                    setIsTimelineDialogOpen(true);
+                                  }
                                 }}
+                                variant="ghost"
                                 size="sm"
-                                className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-xl px-3 py-1 text-xs"
+                                className="text-muted-foreground hover:text-white rounded-xl px-2 py-1"
                               >
-                                Return
+                                History
                               </Button>
-                            )}
-                            <Button
-                              onClick={() => {
-                                setSelectedAssetForTimeline(alloc.asset || null);
-                                if (alloc.asset) {
-                                  fetchTimeline(alloc.asset.id);
-                                  setIsTimelineDialogOpen(true);
-                                }
-                              }}
-                              variant="ghost"
-                              size="sm"
-                              className="text-muted-foreground hover:text-white rounded-xl px-2 py-1"
-                            >
-                              History
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -524,96 +551,127 @@ export default function AllocationsPage() {
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-muted-foreground text-sm">Loading transfers data...</p>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">From Holder</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Recipient</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Reason</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Status</TableHead>
+                        <TableHead className="font-bold text-muted-foreground text-right pr-6">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/40">
+                          <TableCell className="pl-6 py-4">
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-28 bg-muted/40" />
+                              <Skeleton className="h-3 w-16 bg-muted/40 font-mono" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-32 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-6 w-16 rounded-full bg-muted/40" /></TableCell>
+                          <TableCell className="text-right pr-6 py-4"><Skeleton className="h-8 w-16 ml-auto rounded-xl bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               ) : transfers.length === 0 ? (
                 <div className="text-center p-12 text-muted-foreground text-sm">
                   No asset transfer requests logged.
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b border-border/40 hover:bg-transparent">
-                      <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">From Holder</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Recipient</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Reason</TableHead>
-                      <TableHead className="font-bold text-muted-foreground">Status</TableHead>
-                      <TableHead className="font-bold text-muted-foreground text-right pr-6">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {transfers.map(transfer => (
-                      <TableRow key={transfer.id} className="border-b border-border/40 hover:bg-muted/5 transition-colors">
-                        <TableCell className="pl-6 py-4">
-                          <div>
-                            <div className="font-semibold text-white">{transfer.asset?.name}</div>
-                            <div className="text-xs text-muted-foreground font-mono">{transfer.asset?.asset_tag}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-white py-4 font-medium">{transfer.from_user?.name || 'System'}</TableCell>
-                        <TableCell className="text-white py-4 font-medium">
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <ArrowRight className="w-3.5 h-3.5 text-primary" />
-                              <span>{transfer.to_user?.name}</span>
-                            </div>
-                            <div className="text-xs text-muted-foreground pl-5">{transfer.to_user?.department?.name || 'No Dept'}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-4 max-w-[200px] truncate" title={transfer.reason}>
-                          {transfer.reason}
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <Badge
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              transfer.status === 'Approved'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                : transfer.status === 'Requested'
-                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                                : 'bg-destructive/10 text-destructive-foreground border border-destructive/20'
-                            }`}
-                          >
-                            {transfer.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right pr-6 py-4">
-                          <div className="flex justify-end gap-2">
-                            {transfer.status === 'Requested' && canApprove(transfer) ? (
-                              <>
-                                <Button
-                                  onClick={() => handleApproveTransfer(transfer.id)}
-                                  size="sm"
-                                  className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-3 py-1 text-xs"
-                                >
-                                  Approve
-                                </Button>
-                                <Button
-                                  onClick={() => handleRejectTransfer(transfer.id)}
-                                  size="sm"
-                                  variant="destructive"
-                                  className="rounded-xl px-3 py-1 text-xs"
-                                >
-                                  Reject
-                                </Button>
-                              </>
-                            ) : transfer.status === 'Approved' && transfer.approved_by_user ? (
-                              <span className="text-xs text-muted-foreground">
-                                Approved by {transfer.approved_by_user.name}
-                              </span>
-                            ) : transfer.status === 'Rejected' ? (
-                              <span className="text-xs text-muted-foreground">Rejected</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Pending Approval</span>
-                            )}
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="font-bold text-muted-foreground pl-6">Asset</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">From Holder</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Recipient</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Reason</TableHead>
+                        <TableHead className="font-bold text-muted-foreground">Status</TableHead>
+                        <TableHead className="font-bold text-muted-foreground text-right pr-6">Action</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {transfers.map(transfer => (
+                        <TableRow key={transfer.id} className="border-b border-border/40 hover:bg-muted/5 transition-colors">
+                          <TableCell className="pl-6 py-4">
+                            <div>
+                              <div className="font-semibold text-white">{transfer.asset?.name}</div>
+                              <div className="text-xs text-primary font-mono mt-0.5">
+                                {transfer.asset?.asset_tag}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-white py-4 font-medium">{transfer.from_user?.name || 'System'}</TableCell>
+                          <TableCell className="text-white py-4 font-medium">
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <ArrowRight className="w-3.5 h-3.5 text-primary" />
+                                <span>{transfer.to_user?.name}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground pl-5">{transfer.to_user?.department?.name || 'No Dept'}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-4 text-xs max-w-[200px] truncate" title={transfer.reason || undefined}>
+                            {transfer.reason || 'No reason stated'}
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Badge
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                transfer.status === 'Approved'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : transfer.status === 'Rejected'
+                                  ? 'bg-destructive/15 text-red-400 border border-destructive/20'
+                                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              }`}
+                            >
+                              {transfer.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right pr-6 py-4">
+                            <div className="flex justify-end items-center gap-2">
+                              {transfer.status === 'Pending' && canApprove(transfer) ? (
+                                <>
+                                  <Button
+                                    onClick={() => handleApproveTransfer(transfer.id)}
+                                    size="sm"
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-3 py-1 text-xs border-0"
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleRejectTransfer(transfer.id)}
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-400 hover:text-white border-red-500/20 hover:bg-red-500/10 rounded-xl px-3 py-1 text-xs"
+                                  >
+                                    Reject
+                                  </Button>
+                                </>
+                              ) : transfer.status === 'Approved' && transfer.approved_by_user ? (
+                                <span className="text-xs text-muted-foreground">
+                                  Approved by {transfer.approved_by_user.name}
+                                </span>
+                              ) : transfer.status === 'Rejected' ? (
+                                <span className="text-xs text-muted-foreground">Rejected</span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Pending Approval</span>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>

@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Asset {
   id: number;
@@ -79,6 +80,7 @@ export default function BookingsPage() {
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [holds, setHolds] = useState<SocketHold[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMyBookingsLoading, setIsMyBookingsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -131,11 +133,14 @@ export default function BookingsPage() {
 
   // Fetch my bookings (all bookings for the current user)
   const fetchMyBookings = async () => {
+    setIsMyBookingsLoading(true);
     try {
       const response = await api.get('/bookings');
       setMyBookings(response.data);
     } catch (err) {
       console.error('Error fetching my bookings:', err);
+    } finally {
+      setIsMyBookingsLoading(false);
     }
   };
 
@@ -538,9 +543,15 @@ export default function BookingsPage() {
 
               {/* Slots List */}
               {isLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-muted-foreground font-semibold">Loading slots...</span>
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-zinc-500/5 animate-pulse">
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="h-4 w-28 bg-muted/40" />
+                        <Skeleton className="h-4 w-32 bg-muted/40" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -634,11 +645,7 @@ export default function BookingsPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="max-h-[400px] overflow-y-auto">
-                {myBookings.length === 0 ? (
-                  <div className="p-6 text-center text-sm text-muted-foreground">
-                    No bookings found.
-                  </div>
-                ) : (
+                {isMyBookingsLoading ? (
                   <Table>
                     <TableHeader className="bg-white/5 border-b border-border/40">
                       <TableRow>
@@ -649,60 +656,92 @@ export default function BookingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {myBookings.map(b => {
-                        const bStart = new Date(b.start_datetime);
-                        const bEnd = new Date(b.end_datetime);
-                        const dateStr = bStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                        const timeStr = `${bStart.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })} - ${bEnd.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
-
-                        let statusBadge = null;
-                        switch (b.status) {
-                          case 'Upcoming':
-                            statusBadge = <Badge className="bg-blue-600 text-white hover:bg-blue-600/80 rounded-lg text-[10px] py-0.5 px-2">Upcoming</Badge>;
-                            break;
-                          case 'Ongoing':
-                            statusBadge = <Badge className="bg-amber-600 text-white hover:bg-amber-600/80 rounded-lg text-[10px] py-0.5 px-2">Ongoing</Badge>;
-                            break;
-                          case 'Completed':
-                            statusBadge = <Badge className="bg-emerald-600 text-white hover:bg-emerald-600/80 rounded-lg text-[10px] py-0.5 px-2">Completed</Badge>;
-                            break;
-                          case 'Cancelled':
-                            statusBadge = <Badge className="bg-zinc-600 text-white hover:bg-zinc-600/80 rounded-lg text-[10px] py-0.5 px-2">Cancelled</Badge>;
-                            break;
-                        }
-
-                        // Determine if cancellable (must be upcoming and booker can cancel)
-                        const isCancellable = b.status === 'Upcoming' && (b.user_id === currentUser?.id || isAdminOrManager) && new Date(b.start_datetime) > new Date();
-
-                        return (
-                          <TableRow key={b.id} className="border-b border-border/40 hover:bg-white/5">
-                            <TableCell className="font-semibold text-white text-xs max-w-[120px] truncate">
-                              {b.resource?.name || 'Resource'}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground text-xs">
-                              <div className="font-medium text-white">{dateStr}</div>
-                              <div className="text-[10px] opacity-80">{timeStr}</div>
-                            </TableCell>
-                            <TableCell className="py-2">{statusBadge}</TableCell>
-                            <TableCell className="text-right py-2">
-                              {isCancellable ? (
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => handleCancelBooking(b.id, b.resource_id)}
-                                  className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl h-8 w-8"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              ) : (
-                                <span className="text-[10px] text-muted-foreground font-semibold px-2">-</span>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/40">
+                          <TableCell className="py-2.5 pl-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="py-2.5">
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-16 bg-muted/40" />
+                              <Skeleton className="h-3 w-24 bg-muted/40" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-2.5"><Skeleton className="h-5 w-12 rounded bg-muted/40" /></TableCell>
+                          <TableCell className="py-2.5 text-right pr-4"><Skeleton className="h-8 w-8 rounded-xl bg-muted/40 ml-auto" /></TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
+                ) : myBookings.length === 0 ? (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    No bookings found.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader className="bg-white/5 border-b border-border/40">
+                        <TableRow>
+                          <TableHead className="text-white font-bold text-xs">Resource</TableHead>
+                          <TableHead className="text-white font-bold text-xs">Time Slot</TableHead>
+                          <TableHead className="text-white font-bold text-xs">Status</TableHead>
+                          <TableHead className="text-white font-bold text-xs text-right">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {myBookings.map(b => {
+                          const bStart = new Date(b.start_datetime);
+                          const bEnd = new Date(b.end_datetime);
+                          const dateStr = bStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                          const timeStr = `${bStart.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })} - ${bEnd.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+
+                          let statusBadge = null;
+                          switch (b.status) {
+                            case 'Upcoming':
+                              statusBadge = <Badge className="bg-blue-600 text-white hover:bg-blue-600/80 rounded-lg text-[10px] py-0.5 px-2">Upcoming</Badge>;
+                              break;
+                            case 'Ongoing':
+                              statusBadge = <Badge className="bg-amber-600 text-white hover:bg-amber-600/80 rounded-lg text-[10px] py-0.5 px-2">Ongoing</Badge>;
+                              break;
+                            case 'Completed':
+                              statusBadge = <Badge className="bg-emerald-600 text-white hover:bg-emerald-600/80 rounded-lg text-[10px] py-0.5 px-2">Completed</Badge>;
+                              break;
+                            case 'Cancelled':
+                              statusBadge = <Badge className="bg-zinc-600 text-white hover:bg-zinc-600/80 rounded-lg text-[10px] py-0.5 px-2">Cancelled</Badge>;
+                              break;
+                          }
+
+                          // Determine if cancellable (must be upcoming and booker can cancel)
+                          const isCancellable = b.status === 'Upcoming' && (b.user_id === currentUser?.id || isAdminOrManager) && new Date(b.start_datetime) > new Date();
+
+                          return (
+                            <TableRow key={b.id} className="border-b border-border/40 hover:bg-white/5">
+                              <TableCell className="font-semibold text-white text-xs max-w-[120px] truncate">
+                                {b.resource?.name || 'Resource'}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-xs">
+                                <div className="font-medium text-white">{dateStr}</div>
+                                <div className="text-[10px] opacity-80">{timeStr}</div>
+                              </TableCell>
+                              <TableCell className="py-2">{statusBadge}</TableCell>
+                              <TableCell className="text-right py-2">
+                                {isCancellable ? (
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => handleCancelBooking(b.id, b.resource_id)}
+                                    className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl h-8 w-8"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground font-semibold px-2">-</span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </div>
             </CardContent>

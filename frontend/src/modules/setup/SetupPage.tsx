@@ -10,10 +10,7 @@ import {
   Power, 
   PowerOff, 
   Trash2, 
-  PlusCircle, 
-  MinusCircle, 
   Loader2, 
-  Check, 
   X,
   AlertCircle
 } from 'lucide-react';
@@ -25,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 
@@ -326,14 +324,7 @@ export default function SetupPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-80 space-y-4">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-muted-foreground text-sm">Loading systems configuration...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -620,7 +611,32 @@ export default function SetupPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {departments.length === 0 ? (
+              {isLoading ? (
+                <div className="overflow-x-auto">
+                  <Table className="font-sans">
+                    <TableHeader className="bg-secondary/10 border-b border-border/40">
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Department Name</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Parent Node</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Department Head</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Status</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody className="border-b border-border/20">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/30">
+                          <TableCell className="px-6 py-4"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-4 w-24 bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-6 w-16 rounded-xl bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4 text-right"><Skeleton className="h-8 w-16 ml-auto rounded-xl bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : departments.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm font-sans">
                   No departments found. Create one to get started.
                 </div>
@@ -711,7 +727,28 @@ export default function SetupPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {categories.length === 0 ? (
+              {isLoading ? (
+                <div className="overflow-x-auto">
+                  <Table className="font-sans">
+                    <TableHeader className="bg-secondary/10 border-b border-border/40">
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Category Name</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Custom Property Fields</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody className="border-b border-border/20">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/30">
+                          <TableCell className="px-6 py-4"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4 flex gap-1.5"><Skeleton className="h-6 w-16 rounded-xl bg-muted/40" /><Skeleton className="h-6 w-20 rounded-xl bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4 text-right"><Skeleton className="h-8 w-16 ml-auto rounded-xl bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : categories.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm font-sans">
                   No categories defined. Add a category template to configure schemas.
                 </div>
@@ -784,7 +821,35 @@ export default function SetupPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {employees.length === 0 ? (
+              {isLoading ? (
+                <div className="overflow-x-auto">
+                  <Table className="font-sans">
+                    <TableHeader className="bg-secondary/10 border-b border-border/40">
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Employee Details</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Department Node</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Privilege Role</TableHead>
+                        <TableHead className="px-6 h-11 font-bold text-muted-foreground">Account Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody className="border-b border-border/20">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/30">
+                          <TableCell className="px-6 py-4">
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-28 bg-muted/40" />
+                              <Skeleton className="h-3 w-36 bg-muted/40" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-8 w-44 rounded-xl bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-8 w-40 rounded-xl bg-muted/40" /></TableCell>
+                          <TableCell className="px-6 py-4"><Skeleton className="h-8 w-24 rounded-xl bg-muted/40" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : employees.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm font-sans">
                   No registered employees found.
                 </div>

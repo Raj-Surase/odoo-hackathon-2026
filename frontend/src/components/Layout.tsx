@@ -10,7 +10,6 @@ import {
   Settings,
   Calendar,
   FolderOpen,
-  ListTodo,
   BarChart3,
   Hammer,
   ClipboardCheck,
@@ -213,13 +212,6 @@ export default function Layout({ children }: LayoutProps) {
                 </React.Fragment>
               ))}
             </nav>
-          </div>
-
-          <div className="flex items-center space-x-3 select-none">
-            <div className="text-right hidden sm:block">
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider font-sans">Workspace</p>
-              <p className="text-sm font-semibold text-foreground font-sans">DhaagaLabs HQ</p>
-            </div>
           </div>
         </header>
 

@@ -14,13 +14,13 @@ import {
   PlusCircle,
   Hammer,
   CalendarRange,
-  Loader2,
   RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface OverdueAllocation {
   id: number;
@@ -91,16 +91,7 @@ export default function DashboardPage() {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground text-sm">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   const cards = kpis ? [
     {
@@ -192,31 +183,51 @@ export default function DashboardPage() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, idx) => {
-          const Icon = card.icon;
-          return (
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, idx) => (
             <Card 
               key={idx} 
-              className={`border bg-card/40 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-card/60 shadow-soft overflow-hidden group`}
+              className="border bg-card/40 backdrop-blur-md shadow-soft overflow-hidden"
             >
               <CardContent className="p-6 relative">
-                {/* Decorative background glow */}
-                <div className={`absolute top-0 right-0 w-24 h-24 rounded-full bg-gradient-to-br filter blur-2xl opacity-10 transition-all duration-300 group-hover:scale-125`} />
-                
                 <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{card.title}</p>
-                    <p className="text-3xl font-extrabold tracking-tight text-white">{card.value}</p>
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-3 w-20 bg-muted/40" />
+                    <Skeleton className="h-8 w-16 bg-muted/40" />
                   </div>
-                  <div className={`p-3 rounded-2xl border ${card.gradient}`}>
-                    <Icon className="h-5 w-5" />
-                  </div>
+                  <Skeleton className="h-10 w-10 rounded-2xl bg-muted/40" />
                 </div>
-                <p className="text-[11px] text-muted-foreground/80 mt-4 leading-normal">{card.description}</p>
+                <Skeleton className="h-3 w-full mt-4 bg-muted/40" />
               </CardContent>
             </Card>
-          );
-        })}
+          ))
+        ) : (
+          cards.map((card, idx) => {
+            const Icon = card.icon;
+            return (
+              <Card 
+                key={idx} 
+                className={`border bg-card/40 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-card/60 shadow-soft overflow-hidden group`}
+              >
+                <CardContent className="p-6 relative">
+                  {/* Decorative background glow */}
+                  <div className={`absolute top-0 right-0 w-24 h-24 rounded-full bg-gradient-to-br filter blur-2xl opacity-10 transition-all duration-300 group-hover:scale-125`} />
+                  
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{card.title}</p>
+                      <p className="text-3xl font-extrabold tracking-tight text-white">{card.value}</p>
+                    </div>
+                    <div className={`p-3 rounded-2xl border ${card.gradient}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/80 mt-4 leading-normal">{card.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
 
       {/* Quick Actions Panel */}
@@ -281,7 +292,39 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {!kpis || kpis.overdue_returns.length === 0 ? (
+          {isLoading ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/60 hover:bg-transparent">
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80 pl-8">Asset Details</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Asset Tag</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Current Holder</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Department</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Expected Return</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80 pr-8 text-right">Overdue By</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <TableRow key={idx} className="border-b border-border/40">
+                      <TableCell className="pl-8 py-4"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16 bg-muted/40" /></TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <Skeleton className="h-4 w-24 bg-muted/40" />
+                          <Skeleton className="h-3 w-32 bg-muted/40" />
+                        </div>
+                      </TableCell>
+                      <TableCell><Skeleton className="h-4 w-16 bg-muted/40" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24 bg-muted/40" /></TableCell>
+                      <TableCell className="pr-8 text-right"><Skeleton className="h-6 w-16 ml-auto rounded-full bg-muted/40" /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : !kpis || kpis.overdue_returns.length === 0 ? (
             <div className="p-10 text-center">
               <CheckCircle className="h-10 w-10 text-emerald-500/60 mx-auto mb-2" />
               <p className="text-sm font-semibold text-white">All Clear!</p>

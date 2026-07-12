@@ -13,20 +13,17 @@ import {
   Loader2,
   Play,
   UserPlus,
-  ExternalLink,
-  MessageSquare,
   Sparkles,
-  ArrowRight,
   UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Asset {
   id: number;
@@ -234,7 +231,7 @@ export default function MaintenancePage() {
 
   const updateRequestStatus = async (id: number, payload: any) => {
     try {
-      const res = await api.patch(`/maintenance/requests/${id}`, payload);
+      await api.patch(`/maintenance/requests/${id}`, payload);
       triggerSuccess(`Request updated successfully.`);
       fetchKanban();
     } catch (err: any) {
@@ -414,12 +411,6 @@ export default function MaintenancePage() {
       </div>
 
       {/* Kanban Board Grid */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4">
-          <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          <p className="text-muted-foreground text-sm">Loading Kanban pipeline...</p>
-        </div>
-      ) : (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
           {columns.map((col) => {
             const filteredRequests = filterRequests(boardData[col.status] || []);
@@ -440,7 +431,22 @@ export default function MaintenancePage() {
 
                 {/* Cards Container */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-3 no-scrollbar">
-                  {filteredRequests.length === 0 ? (
+                  {isLoading ? (
+                    Array.from({ length: 2 }).map((_, i) => (
+                      <Card key={i} className="p-4 border border-border/40 bg-card/20 rounded-2xl space-y-3">
+                        <div className="flex justify-between items-start">
+                          <Skeleton className="h-5 w-20 bg-muted/40" />
+                          <Skeleton className="h-5 w-12 bg-muted/40" />
+                        </div>
+                        <Skeleton className="h-4 w-full bg-muted/40" />
+                        <Skeleton className="h-4 w-3/4 bg-muted/40" />
+                        <div className="flex justify-between items-center pt-2">
+                          <Skeleton className="h-5 w-16 rounded-full bg-muted/40" />
+                          <Skeleton className="h-8 w-8 rounded-xl bg-muted/40" />
+                        </div>
+                      </Card>
+                    ))
+                  ) : filteredRequests.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full py-12 border-2 border-dashed border-border/20 rounded-2xl p-4 text-center">
                       <Wrench className="w-8 h-8 text-muted-foreground/20 mb-2" />
                       <p className="text-[11px] text-muted-foreground/45 uppercase tracking-wider font-bold">No Requests</p>
@@ -587,7 +593,6 @@ export default function MaintenancePage() {
             );
           })}
         </div>
-      )}
 
       {/* Lightbox Modal */}
       <Dialog open={!!lightboxImage} onOpenChange={() => setLightboxImage(null)}>

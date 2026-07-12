@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface UserProfile {
   id: number;
@@ -392,11 +393,6 @@ export default function AuditsPage() {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* LEFT: Audit Cycles List */}
@@ -412,7 +408,18 @@ export default function AuditsPage() {
             </div>
 
             <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
-              {filteredCycles.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <Card key={idx} className="border-border/40 bg-card/40 rounded-3xl p-5 space-y-3">
+                    <div className="flex justify-between">
+                      <Skeleton className="h-5 w-24 bg-muted/40" />
+                      <Skeleton className="h-5 w-16 rounded-full bg-muted/40" />
+                    </div>
+                    <Skeleton className="h-3 w-full bg-muted/40" />
+                    <Skeleton className="h-3 w-1/2 bg-muted/40" />
+                  </Card>
+                ))
+              ) : filteredCycles.length === 0 ? (
                 <Card className="border-border/40 bg-card/40 rounded-3xl p-6 text-center">
                   <p className="text-muted-foreground text-sm">No audit cycles found.</p>
                 </Card>
@@ -488,9 +495,57 @@ export default function AuditsPage() {
           {/* RIGHT: Active Cycle Verification Board */}
           <div className="lg:col-span-8">
             {isDetailLoading ? (
-              <Card className="border-border/60 bg-card rounded-3xl h-96 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </Card>
+              <div className="space-y-6">
+                <Card className="border-border/60 bg-card rounded-3xl overflow-hidden shadow-soft">
+                  <CardContent className="p-6 md:p-8 space-y-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-7 w-40 bg-muted/40" />
+                          <Skeleton className="h-5 w-16 rounded-full bg-muted/40" />
+                        </div>
+                        <Skeleton className="h-4 w-48 bg-muted/40" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border/60 bg-card rounded-3xl overflow-hidden shadow-soft">
+                  <CardHeader className="p-6 border-b border-border/40">
+                    <Skeleton className="h-6 w-36 bg-muted/40" />
+                    <Skeleton className="h-4 w-full bg-muted/40 mt-2" />
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-border/40 bg-muted/20">
+                            <TableHead className="text-muted-foreground text-xs pl-6">Asset Tag & Name</TableHead>
+                            <TableHead className="text-muted-foreground text-xs">Expected Location</TableHead>
+                            <TableHead className="text-muted-foreground text-xs">Verification Log</TableHead>
+                            <TableHead className="text-muted-foreground text-xs pr-6">Verify Action / Notes</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {Array.from({ length: 3 }).map((_, idx) => (
+                            <TableRow key={idx} className="border-border/20">
+                              <TableCell className="py-4 pl-6">
+                                <div className="space-y-1">
+                                  <Skeleton className="h-4 w-28 bg-muted/40" />
+                                  <Skeleton className="h-3 w-16 bg-muted/40" />
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-4"><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                              <TableCell className="py-4"><Skeleton className="h-6 w-16 rounded-full bg-muted/40" /></TableCell>
+                              <TableCell className="py-4 pr-6 flex gap-2"><Skeleton className="h-8 w-20 bg-muted/40" /><Skeleton className="h-8 w-20 bg-muted/40" /></TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             ) : activeCycle ? (
               <div className="space-y-6">
                 
@@ -750,7 +805,6 @@ export default function AuditsPage() {
           </div>
 
         </div>
-      )}
 
       {/* Start Cycle Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

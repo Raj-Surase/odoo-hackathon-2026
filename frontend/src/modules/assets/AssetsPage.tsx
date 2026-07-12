@@ -6,16 +6,12 @@ import {
   Plus,
   Search,
   MapPin,
-  Clock,
   Edit2,
   Trash2,
   Loader2,
   Check,
-  X,
   FileImage,
   Tag,
-  Building2,
-  Calendar,
   AlertTriangle,
   Info,
   Layers,
@@ -24,7 +20,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,6 +28,7 @@ import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface User {
   id: number;
@@ -90,6 +87,7 @@ export default function AssetsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAssetsLoading, setIsAssetsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filters State
@@ -148,6 +146,7 @@ export default function AssetsPage() {
 
   // Fetch assets list based on filters
   const fetchAssets = async () => {
+    setIsAssetsLoading(true);
     try {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
@@ -159,6 +158,8 @@ export default function AssetsPage() {
       setAssets(res.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsAssetsLoading(false);
     }
   };
 
@@ -347,53 +348,69 @@ export default function AssetsPage() {
 
       {/* KPI Cards Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
-          <CardContent className="p-6 flex items-center space-x-4">
-            <div className="p-3 bg-primary/10 rounded-2xl">
-              <Layers className="text-primary w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Assets</p>
-              <h3 className="text-2xl font-black text-white mt-1">{totalCount}</h3>
-            </div>
-          </CardContent>
-        </Card>
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, idx) => (
+            <Card key={idx} className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
+              <CardContent className="p-6 flex items-center space-x-4">
+                <Skeleton className="p-3 h-12 w-12 rounded-2xl bg-muted/40" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-20 bg-muted/40" />
+                  <Skeleton className="h-6 w-12 bg-muted/40" />
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <>
+            <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
+              <CardContent className="p-6 flex items-center space-x-4">
+                <div className="p-3 bg-primary/10 rounded-2xl">
+                  <Layers className="text-primary w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Assets</p>
+                  <h3 className="text-2xl font-black text-white mt-1">{totalCount}</h3>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
-          <CardContent className="p-6 flex items-center space-x-4">
-            <div className="p-3 bg-emerald-500/10 rounded-2xl">
-              <Check className="text-emerald-400 w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Available</p>
-              <h3 className="text-2xl font-black text-emerald-400 mt-1">{availableCount}</h3>
-            </div>
-          </CardContent>
-        </Card>
+            <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
+              <CardContent className="p-6 flex items-center space-x-4">
+                <div className="p-3 bg-emerald-500/10 rounded-2xl">
+                  <Check className="text-emerald-400 w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Available</p>
+                  <h3 className="text-2xl font-black text-emerald-400 mt-1">{availableCount}</h3>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
-          <CardContent className="p-6 flex items-center space-x-4">
-            <div className="p-3 bg-blue-500/10 rounded-2xl">
-              <TrendingUp className="text-blue-400 w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Allocated</p>
-              <h3 className="text-2xl font-black text-blue-400 mt-1">{allocatedCount}</h3>
-            </div>
-          </CardContent>
-        </Card>
+            <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
+              <CardContent className="p-6 flex items-center space-x-4">
+                <div className="p-3 bg-blue-500/10 rounded-2xl">
+                  <TrendingUp className="text-blue-400 w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Allocated</p>
+                  <h3 className="text-2xl font-black text-blue-400 mt-1">{allocatedCount}</h3>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
-          <CardContent className="p-6 flex items-center space-x-4">
-            <div className="p-3 bg-amber-500/10 rounded-2xl">
-              <AlertTriangle className="text-amber-400 w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">In Maintenance</p>
-              <h3 className="text-2xl font-black text-amber-400 mt-1">{maintenanceCount}</h3>
-            </div>
-          </CardContent>
-        </Card>
+            <Card className="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl shadow-soft">
+              <CardContent className="p-6 flex items-center space-x-4">
+                <div className="p-3 bg-amber-500/10 rounded-2xl">
+                  <AlertTriangle className="text-amber-400 w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">In Maintenance</p>
+                  <h3 className="text-2xl font-black text-amber-400 mt-1">{maintenanceCount}</h3>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Control Panel (Filters and Search) */}
@@ -467,151 +484,177 @@ export default function AssetsPage() {
 
       {/* Directory Table */}
       <Card className="bg-card/40 backdrop-blur-md border border-border/30 rounded-3xl overflow-hidden shadow-glass">
-        <Table>
-          <TableHeader className="bg-muted/15 border-b border-border/40">
-            <TableRow>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider py-4 pl-6">Tag</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Photo</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Asset Info</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Category</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Location</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Status</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Condition</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Holder</TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider text-right pr-6">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {assets.length === 0 ? (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-muted/15 border-b border-border/40">
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
-                  <div className="flex flex-col items-center justify-center space-y-2">
-                    <Info className="w-8 h-8 text-muted-foreground/50" />
-                    <span>No assets found matching the filter query.</span>
-                  </div>
-                </TableCell>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider py-4 pl-6">Tag</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Photo</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Asset Info</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Category</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Location</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Status</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Condition</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider">Holder</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-bold uppercase tracking-wider text-right pr-6">Actions</TableHead>
               </TableRow>
-            ) : (
-              assets.map((asset) => (
-                <TableRow
-                  key={asset.id}
-                  className="border-b border-border/20 hover:bg-muted/10 transition-colors duration-150 group"
-                >
-                  <TableCell className="py-4 pl-6 font-mono text-sm text-white font-semibold">
-                    <Badge variant="outline" className="bg-background/40 border-primary/20 text-primary-light font-mono rounded-lg">
-                      {asset.asset_tag}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {asset.photo_path ? (
-                      <img
-                        src={`/storage/${asset.photo_path}`}
-                        alt={asset.name}
-                        className="w-12 h-12 object-cover rounded-xl border border-border/40 bg-muted/40 shadow-soft"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl border border-dashed border-border/60 bg-muted/20 flex items-center justify-center">
-                        <FileImage className="w-5 h-5 text-muted-foreground/40" />
+            </TableHeader>
+            <TableBody>
+              {isAssetsLoading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <TableRow key={idx} className="border-b border-border/20">
+                    <TableCell className="py-4 pl-6"><Skeleton className="h-6 w-16 rounded bg-muted/40" /></TableCell>
+                    <TableCell><Skeleton className="w-12 h-12 rounded-xl bg-muted/40" /></TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-28 bg-muted/40" />
+                        <Skeleton className="h-3 w-20 bg-muted/40" />
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors duration-200">
-                        {asset.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5 font-mono">
-                        {asset.serial_number ? `S/N: ${asset.serial_number}` : 'No Serial'}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-300">
-                    {asset.category?.name || 'Unassigned'}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-300">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-muted-foreground/60" />
-                      <span>{asset.location || 'N/A'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold select-none border ${
-                        asset.status === 'Available'
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-                          : asset.status === 'Allocated'
-                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/25'
-                          : 'bg-amber-500/10 text-amber-400 border-amber-500/25'
-                      }`}
-                    >
-                      {asset.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase font-bold border ${
-                        asset.condition === 'Good'
-                          ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5'
-                          : asset.condition === 'Fair'
-                          ? 'text-violet-400 border-violet-500/20 bg-violet-500/5'
-                          : 'text-rose-400 border-rose-500/20 bg-rose-500/5'
-                      }`}
-                    >
-                      {asset.condition}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-300">
-                    {asset.holder ? (
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-white">{asset.holder.name}</span>
-                        <span className="text-[10px] text-muted-foreground">{asset.department?.name || 'IT'}</span>
+                    </TableCell>
+                    <TableCell><Skeleton className="h-4 w-16 bg-muted/40" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20 bg-muted/40" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20 rounded-full bg-muted/40" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16 rounded-full bg-muted/40" /></TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-24 bg-muted/40" />
+                        <Skeleton className="h-3 w-12 bg-muted/40" />
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground/60 text-xs italic">Shared / Stock</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right pr-6">
-                    <div className="flex items-center justify-end space-x-1.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenHistory(asset)}
-                        title="Lifecycle History"
-                        className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-muted/20 rounded-xl"
-                      >
-                        <History className="w-4 h-4" />
-                      </Button>
-
-                      {isAdminOrManager && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenEdit(asset)}
-                            title="Edit Asset"
-                            className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-muted/20 rounded-xl"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteAsset(asset)}
-                            title="Delete Asset"
-                            className="h-8 w-8 text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 rounded-xl"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
+                    </TableCell>
+                    <TableCell className="text-right pr-6"><Skeleton className="h-8 w-24 ml-auto rounded-xl bg-muted/40" /></TableCell>
+                  </TableRow>
+                ))
+              ) : assets.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Info className="w-8 h-8 text-muted-foreground/50" />
+                      <span>No assets found matching the filter query.</span>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                assets.map((asset) => (
+                  <TableRow
+                    key={asset.id}
+                    className="border-b border-border/20 hover:bg-muted/10 transition-colors duration-150 group"
+                  >
+                    <TableCell className="py-4 pl-6 font-mono text-sm text-white font-semibold">
+                      <Badge variant="outline" className="bg-background/40 border-primary/20 text-primary-light font-mono rounded-lg">
+                        {asset.asset_tag}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {asset.photo_path ? (
+                        <img
+                          src={`/storage/${asset.photo_path}`}
+                          alt={asset.name}
+                          className="w-12 h-12 object-cover rounded-xl border border-border/40 bg-muted/40 shadow-soft"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl border border-dashed border-border/60 bg-muted/20 flex items-center justify-center">
+                          <FileImage className="w-5 h-5 text-muted-foreground/40" />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors duration-200">
+                          {asset.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                          {asset.serial_number ? `S/N: ${asset.serial_number}` : 'No Serial'}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-300">
+                      {asset.category?.name || 'Unassigned'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-300">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-muted-foreground/60" />
+                        <span>{asset.location || 'N/A'}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold select-none border ${
+                          asset.status === 'Available'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                            : asset.status === 'Allocated'
+                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/25'
+                            : 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                        }`}
+                      >
+                        {asset.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase font-bold border ${
+                          asset.condition === 'Good'
+                            ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5'
+                            : asset.condition === 'Fair'
+                            ? 'text-violet-400 border-violet-500/20 bg-violet-500/5'
+                            : 'text-rose-400 border-rose-500/20 bg-rose-500/5'
+                        }`}
+                      >
+                        {asset.condition}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-300">
+                      {asset.holder ? (
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-white">{asset.holder.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{asset.department?.name || 'IT'}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground/60 text-xs italic">Shared / Stock</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenHistory(asset)}
+                          title="Lifecycle History"
+                          className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-muted/20 rounded-xl"
+                        >
+                          <History className="w-4 h-4" />
+                        </Button>
+
+                        {isAdminOrManager && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenEdit(asset)}
+                              title="Edit Asset"
+                              className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-muted/20 rounded-xl"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteAsset(asset)}
+                              title="Delete Asset"
+                              className="h-8 w-8 text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 rounded-xl"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
 
       {/* Register & Edit Asset Dialog */}

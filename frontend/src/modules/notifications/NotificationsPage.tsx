@@ -14,7 +14,6 @@ import {
   User,
   ChevronDown,
   ChevronUp,
-  Loader2,
   Inbox
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Notification {
   id: number;
@@ -268,8 +268,21 @@ export default function NotificationsPage() {
         {activeTab !== 'audit' && (
           <div className="space-y-4">
             {isLoadingNotifications ? (
-              <div className="flex h-[30vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <Card key={idx} className="border border-border/40 bg-gradient-to-br from-card/60 to-card/20 p-5 rounded-3xl animate-pulse">
+                    <div className="flex items-start gap-4">
+                      <Skeleton className="h-10 w-10 rounded-2xl bg-muted/40 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Skeleton className="h-5 w-48 bg-muted/40" />
+                          <Skeleton className="h-4 w-16 bg-muted/40" />
+                        </div>
+                        <Skeleton className="h-4 w-full bg-muted/40" />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
             ) : filteredNotifs.length === 0 ? (
               <Card className="border border-border/40 bg-gradient-to-br from-card/40 to-card/10 p-12 text-center shadow-soft">
@@ -352,8 +365,31 @@ export default function NotificationsPage() {
               </CardHeader>
               <CardContent className="p-0">
                 {isLoadingAuditLogs && auditLogs.length === 0 ? (
-                  <div className="flex h-[30vh] items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-b border-border/40 hover:bg-transparent">
+                          <TableHead className="w-[10px]"></TableHead>
+                          <TableHead className="pl-6 font-bold text-xs uppercase tracking-wider text-muted-foreground/80">User</TableHead>
+                          <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Action</TableHead>
+                          <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Resource</TableHead>
+                          <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Record ID</TableHead>
+                          <TableHead className="pr-6 text-right font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Time</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {Array.from({ length: 4 }).map((_, idx) => (
+                          <TableRow key={idx} className="border-b border-border/40">
+                            <TableCell className="w-[10px]"></TableCell>
+                            <TableCell className="py-4 pl-6"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                            <TableCell className="py-4"><Skeleton className="h-6 w-16 rounded-full bg-muted/40" /></TableCell>
+                            <TableCell className="py-4"><Skeleton className="h-4 w-24 bg-muted/40" /></TableCell>
+                            <TableCell className="py-4"><Skeleton className="h-4 w-8 bg-muted/40" /></TableCell>
+                            <TableCell className="py-4 pr-6 text-right"><Skeleton className="h-4 w-16 bg-muted/40 ml-auto" /></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 ) : auditLogs.length === 0 ? (
                   <div className="p-10 text-center text-muted-foreground text-sm">

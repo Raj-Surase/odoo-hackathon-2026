@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { useAuth } from '@/modules/auth/AuthContext';
 import {
   BarChart3,
   CalendarClock,
@@ -17,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface IdleAsset {
   id: number;
@@ -120,16 +120,7 @@ export default function ReportsPage() {
     }
   };
 
-  if (isLoading && !data) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground text-sm">Aggregating reporting metrics...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   // Heatmap rendering helpers
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -278,9 +269,7 @@ export default function ReportsPage() {
                 </TabsList>
               </div>
               <TabsContent value="bookable" className="p-0 mt-0">
-                {!data || data.most_used_bookable.length === 0 ? (
-                  <div className="p-10 text-center text-muted-foreground text-sm">No bookable usage logged.</div>
-                ) : (
+                {isLoading ? (
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-border/40 hover:bg-transparent">
@@ -290,25 +279,46 @@ export default function ReportsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {data.most_used_bookable.map((item) => (
-                        <TableRow key={item.id} className="border-b border-border/20 hover:bg-slate-800/5">
-                          <TableCell className="pl-8 font-semibold text-sm text-white">{item.name}</TableCell>
-                          <TableCell className="font-mono text-xs text-primary">{item.asset_tag}</TableCell>
-                          <TableCell className="pr-8 text-right">
-                            <Badge className="bg-cyan-500/10 border-cyan-500/20 text-cyan-400 rounded-full font-bold">
-                              {item.bookings_count} Bookings
-                            </Badge>
-                          </TableCell>
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/20">
+                          <TableCell className="pl-8 py-4"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 font-mono" /></TableCell>
+                          <TableCell className="pr-8 text-right py-4"><Skeleton className="h-5 w-20 rounded-full bg-muted/40 ml-auto" /></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                ) : !data || data.most_used_bookable.length === 0 ? (
+                  <div className="p-10 text-center text-muted-foreground text-sm">No bookable usage logged.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-b border-border/40 hover:bg-transparent">
+                          <TableHead className="pl-8 font-bold text-xs uppercase tracking-wider">Asset Name</TableHead>
+                          <TableHead className="font-bold text-xs uppercase tracking-wider">Asset Tag</TableHead>
+                          <TableHead className="pr-8 text-right font-bold text-xs uppercase tracking-wider">Total Sessions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {data.most_used_bookable.map((item) => (
+                          <TableRow key={item.id} className="border-b border-border/20 hover:bg-slate-800/5">
+                            <TableCell className="pl-8 font-semibold text-sm text-white">{item.name}</TableCell>
+                            <TableCell className="font-mono text-xs text-primary">{item.asset_tag}</TableCell>
+                            <TableCell className="pr-8 text-right">
+                              <Badge className="bg-cyan-500/10 border-cyan-500/20 text-cyan-400 rounded-full font-bold">
+                                {item.bookings_count} Bookings
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </TabsContent>
               <TabsContent value="allocated" className="p-0 mt-0">
-                {!data || data.most_used_allocated.length === 0 ? (
-                  <div className="p-10 text-center text-muted-foreground text-sm">No allocation usage logged.</div>
-                ) : (
+                {isLoading ? (
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-border/40 hover:bg-transparent">
@@ -318,19 +328,42 @@ export default function ReportsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {data.most_used_allocated.map((item) => (
-                        <TableRow key={item.id} className="border-b border-border/20 hover:bg-slate-800/5">
-                          <TableCell className="pl-8 font-semibold text-sm text-white">{item.name}</TableCell>
-                          <TableCell className="font-mono text-xs text-primary">{item.asset_tag}</TableCell>
-                          <TableCell className="pr-8 text-right">
-                            <Badge className="bg-purple-500/10 border-purple-500/20 text-purple-400 rounded-full font-bold">
-                              {item.allocations_count} Cycles
-                            </Badge>
-                          </TableCell>
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/20">
+                          <TableCell className="pl-8 py-4"><Skeleton className="h-4 w-28 bg-muted/40" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 font-mono" /></TableCell>
+                          <TableCell className="pr-8 text-right py-4"><Skeleton className="h-5 w-20 rounded-full bg-muted/40 ml-auto" /></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                ) : !data || data.most_used_allocated.length === 0 ? (
+                  <div className="p-10 text-center text-muted-foreground text-sm">No allocation usage logged.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-b border-border/40 hover:bg-transparent">
+                          <TableHead className="pl-8 font-bold text-xs uppercase tracking-wider">Asset Name</TableHead>
+                          <TableHead className="font-bold text-xs uppercase tracking-wider">Asset Tag</TableHead>
+                          <TableHead className="pr-8 text-right font-bold text-xs uppercase tracking-wider">Allocation Count</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {data.most_used_allocated.map((item) => (
+                          <TableRow key={item.id} className="border-b border-border/20 hover:bg-slate-800/5">
+                            <TableCell className="pl-8 font-semibold text-sm text-white">{item.name}</TableCell>
+                            <TableCell className="font-mono text-xs text-primary">{item.asset_tag}</TableCell>
+                            <TableCell className="pr-8 text-right">
+                              <Badge className="bg-purple-500/10 border-purple-500/20 text-purple-400 rounded-full font-bold">
+                                {item.allocations_count} Cycles
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>
@@ -358,7 +391,10 @@ export default function ReportsPage() {
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto select-none no-scrollbar">
-          <div className="min-w-[800px] pb-4">
+          {isLoading ? (
+            <Skeleton className="h-[250px] w-full bg-muted/40 rounded-2xl animate-pulse" />
+          ) : (
+            <div className="min-w-[800px] pb-4">
             {/* Header: Hours */}
             <div className="grid mb-2 text-center text-[10px] font-bold text-muted-foreground/60 uppercase" style={{ display: 'grid', gridTemplateColumns: '60px repeat(24, minmax(0, 1fr))', gap: '4px' }}>
               <div className="text-left font-sans pl-2">Day</div>
@@ -395,8 +431,9 @@ export default function ReportsPage() {
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </CardContent>
+    </Card>
 
       {/* Grid: Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -407,7 +444,17 @@ export default function ReportsPage() {
             <CardDescription>Frequency of repair requests grouped by category</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {!data || data.maintenance_by_category.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <Skeleton className="h-4 w-24 bg-muted/40" />
+                    <Skeleton className="h-4 w-16 bg-muted/40" />
+                  </div>
+                  <Skeleton className="w-full h-3 rounded-full bg-muted/40" />
+                </div>
+              ))
+            ) : !data || data.maintenance_by_category.length === 0 ? (
               <div className="p-10 text-center text-muted-foreground text-sm">No maintenance history registered.</div>
             ) : (
               data.maintenance_by_category.map((c, idx) => {
@@ -438,7 +485,17 @@ export default function ReportsPage() {
             <CardDescription>Current active allocation counts by division</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {!data || data.department_allocations.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <Skeleton className="h-4 w-24 bg-muted/40" />
+                    <Skeleton className="h-4 w-16 bg-muted/40" />
+                  </div>
+                  <Skeleton className="w-full h-3 rounded-full bg-muted/40" />
+                </div>
+              ))
+            ) : !data || data.department_allocations.length === 0 ? (
               <div className="p-10 text-center text-muted-foreground text-sm">No active department allocations.</div>
             ) : (
               data.department_allocations.map((d, idx) => {
@@ -501,7 +558,34 @@ export default function ReportsPage() {
         <TabsContent value="idle" className="mt-0">
           <Card className="border border-border/60 shadow-soft overflow-hidden">
             <CardContent className="p-0">
-              {!data || data.idle_assets.length === 0 ? (
+              {isLoading ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="pl-8 font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Asset Details</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Asset Tag</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Category</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Assigned Department</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Condition</TableHead>
+                        <TableHead className="pr-8 text-right font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Acquisition Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/20">
+                          <TableCell className="pl-8 py-4"><Skeleton className="h-4 w-28 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 font-mono animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-24 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-6 w-12 rounded bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="pr-8 text-right py-4"><Skeleton className="h-4 w-20 bg-muted/40 ml-auto animate-pulse" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : !data || data.idle_assets.length === 0 ? (
                 <div className="p-10 text-center text-muted-foreground text-sm">
                   No idle assets detected for the selected period.
                 </div>
@@ -557,7 +641,34 @@ export default function ReportsPage() {
         <TabsContent value="retiring" className="mt-0">
           <Card className="border border-border/60 shadow-soft overflow-hidden">
             <CardContent className="p-0">
-              {!data || data.retiring_assets.length === 0 ? (
+              {isLoading ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-border/40 hover:bg-transparent">
+                        <TableHead className="pl-8 font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Asset Details</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Asset Tag</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Category</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Assigned Department</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Original Cost</TableHead>
+                        <TableHead className="pr-8 text-right font-bold text-xs uppercase tracking-wider text-muted-foreground/80">Acquisition Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <TableRow key={idx} className="border-b border-border/20">
+                          <TableCell className="pl-8 py-4"><Skeleton className="h-4 w-28 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 font-mono animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-24 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="py-4"><Skeleton className="h-4 w-16 bg-muted/40 animate-pulse" /></TableCell>
+                          <TableCell className="pr-8 text-right py-4"><Skeleton className="h-4 w-20 bg-muted/40 ml-auto animate-pulse" /></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : !data || data.retiring_assets.length === 0 ? (
                 <div className="p-10 text-center text-muted-foreground text-sm">
                   No assets are currently nearing retirement.
                 </div>
