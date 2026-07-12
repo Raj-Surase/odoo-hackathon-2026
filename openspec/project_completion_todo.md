@@ -8,33 +8,33 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Setup Tasks
 
-- [ ] **Task 1.1: Backend Initialisation (Laravel)**
+- [x] **Task 1.1: Backend Initialisation (Laravel)**
   - *Description:* Initialise a new Laravel project in the `backend/` directory using Composer. Setup configuration defaults.
   - *Details:*
     - Run `composer create-project laravel/laravel backend`.
     - Configure `.env` with MySQL credentials, database name (`assetflow_db`), app URL, and mail settings.
     - Set up Laravel Sanctum for API token authentication: run `php artisan sanctum:install`.
 
-- [ ] **Task 1.2: Database Migration & Schema Creation**
+- [x] **Task 1.2: Database Migration & Schema Creation**
   - *Description:* Create the database on MySQL server and run default migrations.
   - *Details:*
     - Create a blank MySQL database named `assetflow_db`.
     - Run the default Laravel migrations: `php artisan migrate`.
 
-- [ ] **Task 1.3: Frontend Initialisation (React + Vite)**
+- [x] **Task 1.3: Frontend Initialisation (React + Vite)**
   - *Description:* Initialise a React TypeScript application in the `frontend/` directory using Vite.
   - *Details:*
     - Run `npm create vite@latest frontend -- --template react-ts` (or use `npx`).
     - Install package dependencies: `react-router-dom`, `lucide-react` (icons), `date-fns`, and `axios`.
 
-- [ ] **Task 1.4: Tailwind CSS Configuration**
+- [x] **Task 1.4: Tailwind CSS Configuration**
   - *Description:* Integrate and configure utility-first styling with Tailwind CSS in the frontend SPA.
   - *Details:*
     - Install Tailwind CSS, PostCSS, and Autoprefixer in the React application directory.
     - Run `npx tailwindcss init -p`.
     - Configure `tailwind.config.js` to scan files under `./src` and define a premium color palette (sleek dark colors, smooth greens for Available, reds for Overdue/Alerts, amber for Maintenance).
 
-- [ ] **Task 1.5: CORS & API Proxy Config**
+- [x] **Task 1.5: CORS & API Proxy Config**
   - *Description:* Configure CORS on the backend to allow frontend request parameters, and setup Vite proxy configuration.
   - *Details:*
     - Adjust `config/cors.php` in Laravel to allow requests from the React dev server port (e.g., `http://localhost:5173`).
