@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AssetController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -46,5 +47,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/departments-all', [DepartmentController::class, 'index']);
         Route::get('/categories', [CategoryController::class, 'index']);
         Route::get('/employees', [EmployeeController::class, 'index']);
+
+        // Asset Routes
+        Route::get('/assets', [AssetController::class, 'index']);
+        Route::post('/assets', [AssetController::class, 'store']);
+        Route::get('/assets/{asset}', [AssetController::class, 'show']);
+        Route::put('/assets/{asset}', [AssetController::class, 'update']);
+        Route::delete('/assets/{asset}', [AssetController::class, 'destroy']);
+        Route::get('/assets/{asset}/history', [AssetController::class, 'history']);
     });
 });
+

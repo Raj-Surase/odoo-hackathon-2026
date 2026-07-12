@@ -147,25 +147,25 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Asset Directory Tasks
 
-- [ ] **Task 5.1: Unique Tag Generator Sequence**
+- [x] **Task 5.1: Unique Tag Generator Sequence**
   - *Description:* Implement backend sequencing logic to generate incremental `AF-XXXX` tags.
   - *Details:*
     - Build database sequence helper or MySQL trigger to automatically increment and yield the next code (e.g., `AF-0012`).
     - Enforce database model configuration preventing updates to the `asset_tag` column once registered.
 
-- [ ] **Task 5.2: Register Asset API Endpoint**
+- [x] **Task 5.2: Register Asset API Endpoint**
   - *Description:* Create Laravel endpoint validating registered assets and condition metadata.
   - *Details:*
     - Create `AssetController@store` validation rules using `FormRequest` rules. Validate uniqueness of serial numbers, valid category association, and check `is_bookable` configurations.
     - Handle photo path file uploads and store locally or on Laravel public storage directory.
 
-- [ ] **Task 5.3: Advanced Directory search & filters**
+- [x] **Task 5.3: Advanced Directory search & filters**
   - *Description:* API search scopes to query tags, category groups, conditions, and locations.
   - *Details:*
     - Implement search scopes on `Asset` model querying tag matches, serial matching, and category filters.
     - Frontend: Layout Screen 4 using Tailwind containing query search bars, Category/Status pill filters, and tables rendering asset entries with relative status badges (Green = Available, Blue = Allocated, Yellow = Maintenance).
 
-- [ ] **Task 5.4: Asset Timeline & History Log**
+- [x] **Task 5.4: Asset Timeline & History Log**
   - *Description:* Retrieve history timeline records tracking asset allocations, transfers, and maintenance logs.
   - *Details:*
     - Add endpoint `/api/assets/{id}/history` fetching related data logs from allocations, transfers, and maintenance.
