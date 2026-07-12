@@ -86,7 +86,7 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Controller & View Tasks
 
-- [ ] **Task 3.1: Backend Sanctum Register/Login Endpoints**
+- [x] **Task 3.1: Backend Sanctum Register/Login Endpoints**
   - *Description:* Write authentication controller actions in Laravel handling user registration, credentials lookup, and token generation.
   - *Details:*
     - Create `AuthController.php`.
@@ -94,21 +94,21 @@ This document details the step-by-step development process to implement AssetFlo
     - `login()` action: validate email/password credentials, return Sanitized user object and plain-text API Sanctum token. Return 401 on failed match with generic error.
     - `logout()` action: invalidate/delete active Sanctum tokens.
 
-- [ ] **Task 3.2: Role Authorization Policies**
+- [x] **Task 3.2: Role Authorization Policies**
   - *Description:* Implement Gate Policies to prevent self-role-elevation and secure APIs.
   - *Details:*
     - Create policy classes under `app/Policies` for all models (Asset, Department, Booking, etc.).
     - Setup strict checks in `update()` and `store()` methods restricting operations based on the active session role.
     - Return `403 Forbidden` if a user attempts to update their own `role` attribute.
 
-- [ ] **Task 3.3: React Login and Registration Pages**
+- [x] **Task 3.3: React Login and Registration Pages**
   - *Description:* Create Screen 1 UI in React using Tailwind CSS utility styles.
   - *Details:*
     - Build login page with clean inputs, validation styles, error displays, and links.
     - Build registration page (defaulting to Employee role warning text).
     - Design a custom logo icon placeholder and configure responsive Tailwind forms.
 
-- [ ] **Task 3.4: Route Guards & Auth Context**
+- [x] **Task 3.4: Route Guards & Auth Context**
   - *Description:* Establish React Context tracking session tokens and securing route parameters.
   - *Details:*
     - Write `AuthContext.tsx` managing global state (logged-in user profile, roles, Sanctum authentication tokens).

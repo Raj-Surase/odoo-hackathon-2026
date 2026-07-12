@@ -2,31 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
-  Users,
-  Briefcase,
-  FileText,
-  FileSignature,
   Menu,
   X,
-  Sparkles,
   ChevronRight,
   User,
   LogOut,
-  Layers,
   Settings,
-  CheckSquare,
-  Receipt,
-  CreditCard,
-  UserCheck,
-  GraduationCap,
-  UserPlus,
-  Coins,
   Calendar,
-  BookOpen,
   FolderOpen,
   ListTodo,
   BarChart3,
-  Mail
+  Hammer,
+  ClipboardCheck,
+  Bell,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -60,52 +49,22 @@ export default function Layout({ children }: LayoutProps) {
       ]
     },
     {
-      category: "Sales & CRM",
+      category: "Assets & Operations",
       items: [
-        { name: "CRM Pipeline", path: "/crm", icon: Briefcase },
-        { name: "Client Registry", path: "/clients", icon: Users },
-        { name: "Proposals", path: "/proposals", icon: FileText },
-        { name: "Contracts", path: "/contracts", icon: FileSignature },
+        { name: "Asset Directory", path: "/assets", icon: FolderOpen },
+        { name: "Allocations & Transfers", path: "/allocations", icon: RefreshCw },
+        { name: "Resource Booking", path: "/bookings", icon: Calendar },
+        { name: "Maintenance", path: "/maintenance", icon: Hammer },
+        { name: "Asset Audits", path: "/audits", icon: ClipboardCheck },
       ]
     },
     {
-      category: "Delivery",
+      category: "System & Management",
       items: [
-        { name: "Projects", path: "/projects", icon: CheckSquare },
-        { name: "Tasks", path: "/tasks", icon: ListTodo },
-        { name: "Calendar", path: "/calendar", icon: Calendar },
-      ]
-    },
-    {
-      category: "Finance",
-      items: [
-        { name: "Invoices", path: "/invoices", icon: Receipt },
-        { name: "Payments", path: "/payments", icon: CreditCard },
-        { name: "Reports & Audits", path: "/reports", icon: BarChart3 },
-      ]
-    },
-    {
-      category: "HR & Payroll",
-      items: [
-        { name: "Staff Directory", path: "/employees", icon: UserCheck },
-        { name: "College Interns", path: "/interns", icon: GraduationCap },
-        { name: "Recruitment", path: "/recruitment", icon: UserPlus },
-        { name: "Payroll Batches", path: "/payroll", icon: Coins },
-      ]
-    },
-    {
-      category: "Operations",
-      items: [
-        { name: "Asset Library", path: "/assets", icon: FolderOpen },
-        { name: "Templates", path: "/templates", icon: Layers },
-        { name: "Knowledge Base", path: "/kb", icon: BookOpen },
-        { name: "Communications", path: "/mail", icon: Mail },
-      ]
-    },
-    {
-      category: "System",
-      items: [
-        { name: "Settings", path: "/settings", icon: Settings },
+        // Only show Organization Setup to Admins
+        ...(user?.role === 'Admin' ? [{ name: "Organization Setup", path: "/setup", icon: Settings }] : []),
+        { name: "Reports & Analytics", path: "/reports", icon: BarChart3 },
+        { name: "Notifications & Logs", path: "/notifications", icon: Bell },
       ]
     }
   ];
