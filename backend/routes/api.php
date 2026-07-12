@@ -10,6 +10,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\MaintenanceController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -74,6 +75,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/bookings', [BookingController::class, 'index']);
         Route::post('/bookings', [BookingController::class, 'store']);
         Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+
+        // Maintenance Routes
+        Route::get('/maintenance/kanban', [MaintenanceController::class, 'kanban']);
+        Route::get('/maintenance/requests', [MaintenanceController::class, 'index']);
+        Route::post('/maintenance/requests', [MaintenanceController::class, 'store']);
+        Route::patch('/maintenance/requests/{maintenanceRequest}', [MaintenanceController::class, 'update']);
     });
 });
 

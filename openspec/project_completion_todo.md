@@ -252,25 +252,25 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Maintenance Tasks
 
-- [ ] **Task 8.1: Submit Maintenance Request API**
+- [x] **Task 8.1: Submit Maintenance Request API**
   - *Description:* Route allowing asset holders to request maintenance.
   - *Details:*
     - Write controller validating asset ID, priority levels, and file uploads (photo attachments).
     - Request initializes in `Pending` state.
 
-- [ ] **Task 8.2: Approval State Machine Observer**
+- [x] **Task 8.2: Approval State Machine Observer**
   - *Description:* Sync asset status fields depending on maintenance pipeline changes.
   - *Details:*
     - Set up a Laravel Model Observer on `MaintenanceRequest`.
     - When status transitions from `Pending` to `Approved` → Update corresponding `Asset` status to `Under Maintenance`.
     - When status transitions to `Resolved` → Update corresponding `Asset` status to `Available`.
 
-- [ ] **Task 8.3: Kanban Boards views API**
+- [x] **Task 8.3: Kanban Boards views API**
   - *Description:* Endpoint optimized for kanban representation grouping items by pipeline status.
   - *Details:*
     - Endpoint `/api/maintenance/kanban` returning columns: Pending, Approved, Technician Assigned, In Progress, Resolved.
 
-- [ ] **Task 8.4: React Maintenance Board UI**
+- [x] **Task 8.4: React Maintenance Board UI**
   - *Description:* Build Screen 7 UI using React and Tailwind CSS.
   - *Details:*
     - Layout a kanban board structure. Let users drag/drop cards or click action buttons to change stages (Manager/Technician only).

@@ -66,5 +66,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin', function (User $user) {
             return $user->isAdmin();
         });
+
+        // Register MaintenanceRequest Observer
+        \App\Models\MaintenanceRequest::observe(\App\Observers\MaintenanceRequestObserver::class);
     }
 }
