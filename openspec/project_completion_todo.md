@@ -282,31 +282,31 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Audit Tasks
 
-- [ ] **Task 9.1: Start Audit Cycle API**
+- [x] **Task 9.1: Start Audit Cycle API**
   - *Description:* Admin/Manager dashboard to initialise new audit cycles.
   - *Details:*
     - Create `AuditController@store` validating Name, Department Scope, Location Scope, Start Date, End Date, and Auditor IDs.
 
-- [ ] **Task 9.2: Verification Checklist & Auditor Checklist UI**
+- [x] **Task 9.2: Verification Checklist & Auditor Checklist UI**
   - *Description:* Render checking sheet tables for assigned auditors.
   - *Details:*
     - API returns all assets matched by department/location scope.
     - Auditor submits verify logs: `Verified` (status ok), `Missing` (flagged), `Damaged` (flagged).
 
-- [ ] **Task 9.3: Discrepancy report auto-generation**
+- [x] **Task 9.3: Discrepancy report auto-generation**
   - *Description:* Backend parser compiling verification data and compiling discrepancy logs.
   - *Details:*
     - Whenever an asset is marked as `Missing` or `Damaged`, write records into a draft `DiscrepancyReport`.
     - Keep report updated as auditors proceed through the checklist.
 
-- [ ] **Task 9.4: Close & Lock Audit Cycle**
+- [x] **Task 9.4: Close & Lock Audit Cycle**
   - *Description:* Lock cycle parameters and cascade modifications to main asset tables.
   - *Details:*
     - Create `AuditController@close` endpoint.
     - Set `is_locked = true` and update cycle status.
     - Trigger background updates: assets marked as `Missing` update to `Lost` status, and `Damaged` assets have condition fields updated.
 
-- [ ] **Task 9.5: React Audit Interface**
+- [x] **Task 9.5: React Audit Interface**
   - *Description:* Screen 8 implementation displaying verification panels.
   - *Details:*
     - Provide a checklist with buttons (Green check = Verified, Red X = Missing, Yellow Warning = Damaged).

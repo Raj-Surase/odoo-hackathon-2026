@@ -11,6 +11,7 @@ use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\AuditController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -81,6 +82,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/maintenance/requests', [MaintenanceController::class, 'index']);
         Route::post('/maintenance/requests', [MaintenanceController::class, 'store']);
         Route::patch('/maintenance/requests/{maintenanceRequest}', [MaintenanceController::class, 'update']);
+
+        // Audit Routes
+        Route::get('/audits', [AuditController::class, 'index']);
+        Route::post('/audits', [AuditController::class, 'store']);
+        Route::get('/audits/{auditCycle}', [AuditController::class, 'show']);
+        Route::patch('/audits/lines/{auditLine}', [AuditController::class, 'updateLine']);
+        Route::post('/audits/{auditCycle}/close', [AuditController::class, 'close']);
     });
 });
 

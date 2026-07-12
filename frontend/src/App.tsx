@@ -36,6 +36,7 @@ import AssetsPage from '@/modules/assets/AssetsPage';
 import AllocationsPage from '@/modules/allocations/AllocationsPage';
 import BookingsPage from '@/modules/bookings/BookingsPage';
 import MaintenancePage from '@/modules/maintenance/MaintenancePage';
+import AuditsPage from '@/modules/audits/AuditsPage';
 import { useAuth } from '@/modules/auth/AuthContext';
 
 // Admin-Only Route Guard
@@ -47,12 +48,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
-const Audits = () => (
-  <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
-    <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Asset Audits</h1>
-    <p className="text-muted-foreground text-sm">Periodic verification cycles and discrepancy reports.</p>
-  </div>
-);
+// Placeholders for remaining routing validation
 
 const Reports = () => (
   <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
@@ -99,7 +95,7 @@ function App() {
             <Route path="allocations" element={<AllocationsPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="maintenance" element={<MaintenancePage />} />
-            <Route path="audits" element={<Audits />} />
+            <Route path="audits" element={<AuditsPage />} />
             <Route path="reports" element={<Reports />} />
             <Route path="notifications" element={<Notifications />} />
             

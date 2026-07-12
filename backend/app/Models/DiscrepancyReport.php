@@ -22,4 +22,10 @@ class DiscrepancyReport extends Model
     {
         return $this->belongsTo(AuditCycle::class);
     }
+
+    public function flaggedLines()
+    {
+        return $this->hasMany(AuditLine::class, 'audit_cycle_id', 'audit_cycle_id')
+            ->whereIn('verification', ['Missing', 'Damaged']);
+    }
 }
