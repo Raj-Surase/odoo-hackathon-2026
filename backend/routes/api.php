@@ -7,6 +7,8 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AllocationController;
+use App\Http\Controllers\TransferController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -55,6 +57,17 @@ Route::prefix('v1')->group(function () {
         Route::put('/assets/{asset}', [AssetController::class, 'update']);
         Route::delete('/assets/{asset}', [AssetController::class, 'destroy']);
         Route::get('/assets/{asset}/history', [AssetController::class, 'history']);
+
+        // Allocation Routes
+        Route::get('/allocations', [AllocationController::class, 'index']);
+        Route::post('/allocations', [AllocationController::class, 'store']);
+        Route::post('/allocations/{allocation}/return', [AllocationController::class, 'return']);
+
+        // Transfer Routes
+        Route::get('/transfers', [TransferController::class, 'index']);
+        Route::post('/transfers', [TransferController::class, 'store']);
+        Route::post('/transfers/{transfer}/approve', [TransferController::class, 'approve']);
+        Route::post('/transfers/{transfer}/reject', [TransferController::class, 'reject']);
     });
 });
 

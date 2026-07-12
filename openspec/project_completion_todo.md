@@ -177,32 +177,32 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Allocation Tasks
 
-- [ ] **Task 6.1: Allocation Conflict Gate validation**
+- [x] **Task 6.1: Allocation Conflict Gate validation**
   - *Description:* Backend check to prevent double-allocations on any asset record.
   - *Details:*
     - In `AllocationController@store`, validate that the target asset status is `Available`.
     - If status is `Allocated`, block request and return `422 Unprocessable Entity` with details about the current holder (Employee Name and Department) to trigger the Transfer flow on the client.
 
-- [ ] **Task 6.2: Transfer Request State Pipeline**
+- [x] **Task 6.2: Transfer Request State Pipeline**
   - *Description:* Implementation of the `Requested` → `Approved/Rejected` → `Re-allocated` workflow.
   - *Details:*
     - Create `TransferController` endpoints. `store()` registers the request (validating current holder context and recipient).
     - Create `approve()` endpoint. On approval: update asset's `holder_id`, terminate previous active allocation record, launch a new allocation record for the new holder, and update transfer status.
     - Check that only the Asset Manager or Department Head of the recipient department can approve transfers.
 
-- [ ] **Task 6.3: Return check-in API**
+- [x] **Task 6.3: Return check-in API**
   - *Description:* Mark assets as returned, collect notes, and restore availability.
   - *Details:*
     - Create `/api/allocations/{id}/return` endpoint.
     - Update actual return date, record condition checks (Good, Damaged, Fair), and restore asset status back to `Available`.
 
-- [ ] **Task 6.4: Overdue scheduler command**
+- [x] **Task 6.4: Overdue scheduler command**
   - *Description:* Laravel Scheduler task running daily to detect past-due returns.
   - *Details:*
     - In `app/Console/Kernel.php`, setup a daily scheduled cron command querying active allocations where `expected_return` is past today.
     - Update allocation status to `Overdue` and dispatch overdue return notification records.
 
-- [ ] **Task 6.5: Allocation Frontend Portal**
+- [x] **Task 6.5: Allocation Frontend Portal**
   - *Description:* Screen 5 client UI showing current allocation status and transfer requests.
   - *Details:*
     - Build React form displaying error/warning prompts if an asset is already allocated.

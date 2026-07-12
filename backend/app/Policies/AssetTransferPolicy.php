@@ -33,9 +33,10 @@ class AssetTransferPolicy
 
     public function update(User $user, AssetTransfer $transfer): bool
     {
-        // Dept heads can approve if it belongs to their department or they are the recipient's department head
+        // Dept heads can approve if they are the recipient's department head
         if ($user->isDeptHead()) {
-            return ($transfer->asset && $transfer->asset->department_id === $user->department_id);
+            $recipient = $transfer->toUser;
+            return $recipient && $recipient->department_id === $user->department_id;
         }
 
         return $user->isAssetManager() || $user->isAdmin();

@@ -33,6 +33,7 @@ const Dashboard = () => (
 
 import SetupPage from '@/modules/setup/SetupPage';
 import AssetsPage from '@/modules/assets/AssetsPage';
+import AllocationsPage from '@/modules/allocations/AllocationsPage';
 import { useAuth } from '@/modules/auth/AuthContext';
 
 // Admin-Only Route Guard
@@ -44,12 +45,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
-const Allocations = () => (
-  <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
-    <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Asset Allocation</h1>
-    <p className="text-muted-foreground text-sm">Manage asset assignments, handovers, and history.</p>
-  </div>
-);
+
 
 const Bookings = () => (
   <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
@@ -114,7 +110,7 @@ function App() {
               } 
             />
             <Route path="assets" element={<AssetsPage />} />
-            <Route path="allocations" element={<Allocations />} />
+            <Route path="allocations" element={<AllocationsPage />} />
             <Route path="bookings" element={<Bookings />} />
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="audits" element={<Audits />} />
