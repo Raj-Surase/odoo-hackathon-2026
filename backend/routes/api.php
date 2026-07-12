@@ -9,6 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\TransferController;
+use App\Http\Controllers\BookingController;
 use App\Models\Department;
 
 Route::prefix('v1')->group(function () {
@@ -68,6 +69,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/transfers', [TransferController::class, 'store']);
         Route::post('/transfers/{transfer}/approve', [TransferController::class, 'approve']);
         Route::post('/transfers/{transfer}/reject', [TransferController::class, 'reject']);
+
+        // Booking Routes
+        Route::get('/bookings', [BookingController::class, 'index']);
+        Route::post('/bookings', [BookingController::class, 'store']);
+        Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
     });
 });
 

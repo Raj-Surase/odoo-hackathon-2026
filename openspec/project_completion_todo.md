@@ -215,7 +215,7 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Booking Tasks
 
-- [ ] **Task 7.1: Zero-Overlap validator algorithm**
+- [x] **Task 7.1: Zero-Overlap validator algorithm**
   - *Description:* Enforce overlap validation before saving bookings.
   - *Details:*
     - Write a custom validation rule or query scope in Laravel:
@@ -228,20 +228,20 @@ This document details the step-by-step development process to implement AssetFlo
       ```
     - Apply this logic before inserting or updating booking records.
 
-- [ ] **Task 7.2: Booking API & Middleware checks**
+- [x] **Task 7.2: Booking API & Middleware checks**
   - *Description:* Bookings creation, cancellation, and retrieval endpoints.
   - *Details:*
     - Create `BookingController` with actions: `index()`, `store()`, `cancel()`.
     - Restrict bookings to shared/bookable assets (`is_bookable = true`).
     - Verify that only the booker or an Admin/Asset Manager can cancel a booking.
 
-- [ ] **Task 7.3: React Calendar Dashboard**
+- [x] **Task 7.3: React Calendar Dashboard**
   - *Description:* Implement calendar view rendering resource reservations.
   - *Details:*
     - Build a calendar layout page rendering active, ongoing, or pending reservations.
     - Integrate color-coding for time slots (Procurement booked = Red, Open slots = White/Green).
 
-- [ ] **Task 7.4: Conflict & Booking Forms UI**
+- [x] **Task 7.4: Conflict & Booking Forms UI**
   - *Description:* Layout resource booking modal.
   - *Details:*
     - React forms providing date-time pickers, resource selectors, and warning alerts for rejected overlap configurations.

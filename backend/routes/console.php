@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('allocations:check-overdue')->daily();
+Schedule::command('bookings:update-and-remind')->everyMinute();
