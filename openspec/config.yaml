@@ -1,0 +1,96 @@
+schema: spec-driven
+
+context: |
+  # AssetFlow — Enterprise Asset & Resource Management System
+  
+  ## Domain
+  AssetFlow is an industry-agnostic ERP platform for tracking, allocating, and maintaining
+  physical assets and shared resources. Target users: any organization with equipment,
+  furniture, vehicles, or shared spaces (offices, schools, hospitals, factories, agencies).
+  
+  ## Tech Stack
+  - Platform: Laravel + React Single Page Application (SPA)
+  - Backend: Laravel (PHP 8.2+, Eloquent ORM, REST API / Inertia.js)
+  - Frontend: React (Vite, TypeScript, React Router, Tailwind CSS)
+  - Database: MySQL 8.0+
+  - Styling: Tailwind CSS (utility-first, responsive, custom theme config)
+  - API: RESTful JSON API with Sanctum authentication (or Inertia.js protocol)
+  - Testing: Pest / PHPUnit (Backend), Vitest / React Testing Library (Frontend)
+  - Package Management: Composer (PHP), NPM/PNPM (React)
+  
+  ## Architecture Principles
+  - Clean MVC/Service-Repository layer division in Laravel
+  - SPA or Inertia.js frontend integration for a modern interactive UX
+  - Role-based access control via Laravel Gate policies, middleware, and database roles/permissions
+  - Database-driven state machines on models with strict event/observer validation
+  - Thin controllers, business logic in Eloquent models, services, or action classes
+  - Frontend scheduling and calendar components for bookings, Kanban boards for maintenance pipelines
+  - Queue-based background jobs and scheduled tasks (Laravel Scheduler) for notifications
+  
+  ## Conventions
+  - Database tables: plural, snake_case (e.g., `assets`, `departments`, `allocations`)
+  - Laravel Models: singular, PascalCase (e.g., `Asset`, `Department`, `Allocation`)
+  - All dates/times stored in UTC, converted to user local timezone on frontend
+  - Asset tags auto-generated as `AF-XXXX` (zero-padded sequence)
+  - No purchasing, invoicing, or accounting features — out of scope
+  - Acquisition cost is stored for ranking/reporting only
+  
+  ## User Roles (Database Roles / Laravel Policies)
+  1. Employee (base) — Default on signup. Views own assets, books resources, raises maintenance requests
+  2. Department Head — Views department assets, approves dept transfers, books on behalf of dept
+  3. Asset Manager — Registers/allocates assets, approves transfers/maintenance/audit resolutions
+  4. Admin — Full org setup (departments, categories, employee roles), org-wide analytics
+  
+  ## CRITICAL RULES — Scope Boundaries
+  - Signup creates Employee accounts ONLY — no role selection at signup
+  - Only Admin can promote employees to Department Head or Asset Manager
+  - No self-role-elevation is permitted at any point
+  - Double-allocation of a single asset is BLOCKED — system must suggest transfer request
+  - Overlapping resource bookings are REJECTED — zero tolerance for time-slot conflicts
+  - Maintenance requests MUST be approved before work begins
+  - Audit cycles MUST be closed to update asset statuses
+  - No purchasing, invoicing, or accounting modules
+  - No inventory/warehouse management beyond asset location tracking
+  - No HR/payroll integration
+  
+  ## Asset Lifecycle States
+  Available → Allocated → Available (return)
+  Available → Reserved → Allocated
+  Available ↔ Under Maintenance
+  Allocated → Under Maintenance → Available
+  Any → Lost (via audit)
+  Any → Retired → Disposed
+  
+  ## Key Workflows
+  1. Setup: Admin → Departments → Categories → Employee Directory → Role Assignment
+  2. Registration: Asset Manager registers asset → status: Available
+  3. Allocation: Asset → Employee/Department (blocked if already allocated → transfer)
+  4. Booking: Shared resource → Time slot with overlap validation
+  5. Maintenance: Request → Approval → Technician → In Progress → Resolved
+  6. Transfer: Requested → Approved → Re-allocated
+  7. Audit: Create Cycle → Assign Auditors → Verify → Discrepancy Report → Close
+  8. Notifications: Overdue returns, booking reminders, maintenance events, audit flags
+
+rules:
+  proposal:
+    - Keep proposals focused on a single module or cross-cutting concern
+    - Always reference the screen number from the problem statement (Screen 1-10)
+    - Include the backend controller/route prefix and frontend page route
+    - Mention which user roles are affected
+  design:
+    - Include Laravel migration definitions (tables, columns, foreign keys)
+    - Define Eloquent relationship methods (e.g., belongsTo, hasMany)
+    - Define Laravel FormRequests, API resources, Policies, and Middlewares
+    - Specify React components, hooks, routing routes, and state managers
+    - Document state transitions and validation constraints
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Order tasks by dependency (migrations → models/policies → controller/API → React UI → tests)
+    - Each task should specify the file/layer being modified (migration, controller, React view, tests)
+    - Include test tasks for each critical workflow
+  specs:
+    - Each spec must map to exactly one screen from the problem statement
+    - Include all field definitions with database types and validation rules
+    - Document validation rules and error messages
+    - Specify role-based visibility and access rules
+    - Include example data from the wireframes
