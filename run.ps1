@@ -1,11 +1,4 @@
-Write-Host "Starting AssetFlow Services..." -ForegroundColor Cyan
+Write-Host "Starting AssetFlow Services in a single terminal..." -ForegroundColor Cyan
 
-# Start Laravel Backend in a new window
-Write-Host "Launching Backend (Laravel)..."
-Start-Process cmd -ArgumentList "/k cd backend && php artisan serve --port=8000"
-
-# Start Vite Frontend in a new window
-Write-Host "Launching Frontend (Vite)..."
-Start-Process cmd -ArgumentList "/k cd frontend && npm run dev"
-
-Write-Host "Both services launched in separate windows." -ForegroundColor Green
+# Run concurrently from the frontend directory, calling both the backend artisan server and frontend vite dev server
+npx --prefix frontend concurrently -n "laravel,vite" -c "green,cyan" "cd backend && php artisan serve --port=8000" "cd frontend && npm run dev"
