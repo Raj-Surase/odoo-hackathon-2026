@@ -61,5 +61,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DiscrepancyReport::class, DiscrepancyReportPolicy::class);
         Gate::policy(Notification::class, NotificationPolicy::class);
         Gate::policy(AuditLog::class, AuditLogPolicy::class);
+
+        // Define admin gate
+        Gate::define('admin', function (User $user) {
+            return $user->isAdmin();
+        });
     }
 }

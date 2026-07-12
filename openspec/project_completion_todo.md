@@ -120,21 +120,21 @@ This document details the step-by-step development process to implement AssetFlo
 
 ### Org Setup Tasks
 
-- [ ] **Task 4.1: Tab A — Department API & UI**
+- [x] **Task 4.1: Tab A — Department API & UI**
   - *Description:* Admin portal to view, insert, edit, and deactivate corporate departments.
   - *Details:*
     - Create `DepartmentController` with API resource methods (`index`, `store`, `update`, `destroy`).
     - Restrict endpoints using `auth:sanctum` and Admin Gate middleware.
     - Frontend: React view containing a list/table of active departments (Engineering, Facilities, Field Ops) with edit/deactivate controls, head of department dropdown, and parent hierarchy select element.
 
-- [ ] **Task 4.2: Tab B — Category Builder API & UI**
+- [x] **Task 4.2: Tab B — Category Builder API & UI**
   - *Description:* Setup asset category tables and custom parameter JSON schemes.
   - *Details:*
     - Create `CategoryController` handling category definitions (e.g. Electronics, Furniture, Vehicles).
     - Implement JSON validations for category-specific custom fields.
     - Frontend: Category page showing defined lists, allowing Admin to add/modify templates and custom properties.
 
-- [ ] **Task 4.3: Tab C — Employee directory role mapping UI**
+- [x] **Task 4.3: Tab C — Employee directory role mapping UI**
   - *Description:* Active employee list where Admins can upgrade user roles.
   - *Details:*
     - Create `EmployeeController` returning lists of registered employees.

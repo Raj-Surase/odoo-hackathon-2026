@@ -31,12 +31,17 @@ const Dashboard = () => (
   </div>
 );
 
-const Setup = () => (
-  <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
-    <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Organization Setup</h1>
-    <p className="text-muted-foreground text-sm">Configure departments, asset categories, and assign roles.</p>
-  </div>
-);
+import SetupPage from '@/modules/setup/SetupPage';
+import { useAuth } from '@/modules/auth/AuthContext';
+
+// Admin-Only Route Guard
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  if (user?.role !== 'Admin') {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
 
 const Assets = () => (
   <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-soft">
@@ -106,7 +111,14 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="setup" element={<Setup />} />
+            <Route 
+              path="setup" 
+              element={
+                <AdminRoute>
+                  <SetupPage />
+                </AdminRoute>
+              } 
+            />
             <Route path="assets" element={<Assets />} />
             <Route path="allocations" element={<Allocations />} />
             <Route path="bookings" element={<Bookings />} />
